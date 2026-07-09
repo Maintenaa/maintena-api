@@ -1,4 +1,5 @@
 import { loginRequestSchema } from "./schema/login-schema";
+import { registerRequestSchema } from "./schema/register-schema";
 import { isDevelopment } from "@/core/config";
 import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
 import { authRepository } from "./auth-module";
@@ -27,7 +28,27 @@ export function authRoute() {
 
   return new Elysia({ detail: { tags: ["Auth"] } })
     .model("LoginRequest", loginRequestSchema)
+    .model("RegisterRequest", registerRequestSchema)
     .model("AuthResponse", createApiResponseSchema(authResponseSchema))
+
+    .post(
+      "/register",
+      async ({ body, cookie }) => {
+        const result = await authRepository.register(body);
+        setRefreshTokenCookie(cookie, result.refreshToken);
+
+        return ok(result, { message: "Registration success" });
+      },
+      {
+        detail: {
+          summary: "Register",
+        },
+        body: "RegisterRequest",
+        response: {
+          200: "AuthResponse",
+        },
+      },
+    )
 
     .post(
       "/login",

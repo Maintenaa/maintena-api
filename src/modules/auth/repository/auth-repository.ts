@@ -1,5 +1,6 @@
 import { db, jwtConfig } from "@/core/config";
 import { LoginRequest } from "../schema/login-schema";
+import { RegisterRequest } from "../schema/register-schema";
 import { ApiError } from "@/shared/error";
 import { PasswordService } from "@/shared/service/password-service";
 import Container, { Service } from "typedi";
@@ -10,6 +11,62 @@ import { AuthJwtPayload, AuthResponse } from "../schema/auth-schema";
 @Service()
 export class AuthRepository {
   private readonly password = Container.get(PasswordService);
+
+  async register({
+    name,
+    email,
+    password,
+    company,
+  }: RegisterRequest): Promise<AuthResponse> {
+    const existingUser = await db.user.findFirst({
+      where: { email, deletedAt: null },
+    });
+
+    if (existingUser) {
+      throw new ApiError("Email already exists", 409);
+    }
+
+    const hashedPassword = await this.password.hash(password);
+
+    const result = await db.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+        },
+      });
+
+      const companyRecord = await tx.company.create({
+        data: {
+          name: company,
+          ownerId: user.id,
+        },
+      });
+
+      const position = await tx.position.create({
+        data: {
+          companyId: companyRecord.id,
+          name: "Owner",
+          isAdmin: true,
+          isTechnician: false,
+          isOwner: true,
+        },
+      });
+
+      await tx.userCompany.create({
+        data: {
+          userId: user.id,
+          companyId: companyRecord.id,
+          positionId: position.id,
+        },
+      });
+
+      return user;
+    });
+
+    return await this.createToken(result);
+  }
 
   async login({ email, password }: LoginRequest): Promise<AuthResponse> {
     const user = await db.user.findFirst({ where: { email, deletedAt: null } });
