@@ -3,115 +3,127 @@ import { updateEmployeeRequestSchema } from "./schema/update-employee-schema";
 import { employeeResponseSchema } from "./schema/employee-schema";
 import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
 import { employeeRepository } from "./employee-module";
-import { companyGuard } from "./guard/company-guard";
+import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function employeeRoute() {
-  return new Elysia({ detail: { tags: ["Employees"] } }).use(
-    companyGuard()
-      .model("CreateEmployeeRequest", createEmployeeRequestSchema)
-      .model("UpdateEmployeeRequest", updateEmployeeRequestSchema)
-      .model(
-        "EmployeeResponse",
-        createApiResponseSchema(employeeResponseSchema),
-      )
-      .model(
-        "EmployeeListResponse",
-        createApiResponseSchema(t.Array(employeeResponseSchema)),
-      )
+  const userIdParams = t.Object({
+    userId: t.String({ format: "uuid", error: "Employee ID is required" }),
+  });
 
-      .get(
-        "/companies/:companyId/employees",
-        async ({ company }) => {
-          const employees = await employeeRepository.findAll(company.id);
-          return ok(employees, { message: "Employees fetched" });
-        },
-        {
-          detail: {
-            summary: "List employees",
-          },
-          response: {
-            200: "EmployeeListResponse",
-          },
-        },
-      )
+  return new Elysia({ detail: { tags: ["Employees"] } })
+    .use(
+      companyGuard()
+        .model(
+          "EmployeeResponse",
+          createApiResponseSchema(employeeResponseSchema),
+        )
+        .model(
+          "EmployeeListResponse",
+          createApiResponseSchema(t.Array(employeeResponseSchema)),
+        )
 
-      .get(
-        "/companies/:companyId/employees/:id",
-        async ({ company, params }) => {
-          const employee = await employeeRepository.findById(
-            company.id,
-            (params as Record<string, string>).id,
-          );
+        .get(
+          "/companies/:companyId/employees",
+          async ({ company }) => {
+            const employees = await employeeRepository.findAll(company.id);
+            return ok(employees as any, { message: "Employees fetched" });
+          },
+          {
+            detail: {
+              summary: "List employees",
+            },
+            response: {
+              200: "EmployeeListResponse",
+            },
+          },
+        )
 
-          if (!employee) {
-            throw new Error("Employee not found");
-          }
+        .get(
+          "/companies/:companyId/employees/:userId",
+          async ({ company, params }) => {
+            const employee = await employeeRepository.findById(
+              company.id,
+              params.userId,
+            );
 
-          return ok(employee, { message: "Employee fetched" });
-        },
-        {
-          detail: {
-            summary: "Get employee detail",
-          },
-          response: {
-            200: "EmployeeResponse",
-          },
-        },
-      )
+            if (!employee) {
+              throw new Error("Employee not found");
+            }
 
-      .post(
-        "/companies/:companyId/employees",
-        async ({ company, body }) => {
-          const employee = await employeeRepository.create(company.id, body);
-          return ok(employee, { message: "Employee created" });
-        },
-        {
-          detail: {
-            summary: "Create employee",
+            return ok(employee as any, { message: "Employee fetched" });
           },
-          body: "CreateEmployeeRequest",
-          response: {
-            200: "EmployeeResponse",
+          {
+            params: userIdParams,
+            detail: {
+              summary: "Get employee detail",
+            },
+            response: {
+              200: "EmployeeResponse",
+            },
           },
-        },
-      )
+        ),
+    )
+    .use(
+      companyGuard(["owner", "admin"])
+        .model("CreateEmployeeRequest", createEmployeeRequestSchema)
+        .model("UpdateEmployeeRequest", updateEmployeeRequestSchema)
+        .model(
+          "EmployeeResponse",
+          createApiResponseSchema(employeeResponseSchema),
+        )
 
-      .put(
-        "/companies/:companyId/employees/:id",
-        async ({ company, params, body }) => {
-          const employee = await employeeRepository.update(
-            company.id,
-            (params as Record<string, string>).id,
-            body,
-          );
-          return ok(employee, { message: "Employee updated" });
-        },
-        {
-          detail: {
-            summary: "Update employee",
+        .post(
+          "/companies/:companyId/employees",
+          async ({ company, body }) => {
+            const employee = await employeeRepository.create(company.id, body);
+            return ok(employee, { message: "Employee created" });
           },
-          body: "UpdateEmployeeRequest",
-          response: {
-            200: "EmployeeResponse",
+          {
+            detail: {
+              summary: "Create employee",
+            },
+            body: "CreateEmployeeRequest",
+            response: {
+              200: "EmployeeResponse",
+            },
           },
-        },
-      )
+        )
 
-      .delete(
-        "/companies/:companyId/employees/:id",
-        async ({ company, params }) => {
-          await employeeRepository.delete(
-            company.id,
-            (params as Record<string, string>).id,
-          );
-          return ok(null, { message: "Employee deleted" });
-        },
-        {
-          detail: {
-            summary: "Delete employee",
+        .put(
+          "/companies/:companyId/employees/:userId",
+          async ({ company, params, body }) => {
+            const employee = await employeeRepository.update(
+              company.id,
+              params.userId,
+              body,
+            );
+            return ok(employee, { message: "Employee updated" });
           },
-        },
-      ),
-  );
+          {
+            params: userIdParams,
+            detail: {
+              summary: "Update employee",
+            },
+            body: "UpdateEmployeeRequest",
+            response: {
+              200: "EmployeeResponse",
+            },
+          },
+        )
+
+        .delete(
+          "/companies/:companyId/employees/:userId",
+          async ({ company, params }) => {
+            await employeeRepository.delete(company.id, params.userId);
+            return ok(null, { message: "Employee deleted" });
+          },
+          {
+            params: userIdParams,
+            detail: {
+              summary: "Delete employee",
+            },
+          },
+        ),
+    );
 }

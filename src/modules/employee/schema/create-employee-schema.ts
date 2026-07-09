@@ -11,9 +11,10 @@ export const createEmployeeRequestSchema = t.Object({
     minLength: 8,
     error: "Password must be at least 8 characters",
   }),
-  positionName: t.Optional(
-    t.String({ minLength: 1, error: "Position name is required" }),
-  ),
+  positionId: t.Integer({
+    minimum: 1,
+    error: "Position ID is required",
+  }),
 });
 
 export type CreateEmployeeRequest = Static<typeof createEmployeeRequestSchema>;

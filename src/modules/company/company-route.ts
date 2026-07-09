@@ -55,9 +55,7 @@ export function companyRoute() {
         .get(
           "/companies/:companyId",
           async ({ params }) => {
-            const company = await companyRepository.findById(
-              (params as Record<string, string>).companyId,
-            );
+            const company = await companyRepository.findById(params.companyId);
 
             if (!company) {
               throw new Error("Company not found");
@@ -104,7 +102,7 @@ export function companyRoute() {
           "/companies/:companyId",
           async ({ params, body }) => {
             const company = await companyRepository.update(
-              (params as Record<string, string>).companyId,
+              params.companyId,
               body,
             );
             return ok(company as any, { message: "Company updated" });
@@ -123,9 +121,7 @@ export function companyRoute() {
         .delete(
           "/companies/:companyId",
           async ({ params }) => {
-            await companyRepository.delete(
-              (params as Record<string, string>).companyId,
-            );
+            await companyRepository.delete(params.companyId);
             return ok(null, { message: "Company deleted" });
           },
           {

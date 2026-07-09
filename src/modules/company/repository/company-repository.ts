@@ -15,23 +15,7 @@ export class CompanyRepository {
       },
     });
 
-    return employees.map((emp) => ({
-      id: emp.company.id,
-      name: emp.company.name,
-      email: emp.company.email,
-      address: emp.company.address,
-      logo: emp.company.logo,
-      employeesCount: emp.company.employeesCount,
-      createdAt: emp.company.createdAt.toISOString(),
-      updatedAt: emp.company.updatedAt.toISOString(),
-      position: {
-        id: emp.position.id,
-        name: emp.position.name,
-        isAdmin: emp.position.isAdmin,
-        isTechnician: emp.position.isTechnician,
-        isOwner: emp.position.isOwner,
-      },
-    }));
+    return employees;
   }
 
   async findById(companyId: string) {
@@ -43,16 +27,7 @@ export class CompanyRepository {
       return null;
     }
 
-    return {
-      id: company.id,
-      name: company.name,
-      email: company.email,
-      address: company.address,
-      logo: company.logo,
-      employeesCount: company.employeesCount,
-      createdAt: company.createdAt.toISOString(),
-      updatedAt: company.updatedAt.toISOString(),
-    };
+    return company;
   }
 
   async create(userId: string, data: CreateCompanyRequest) {
@@ -97,16 +72,7 @@ export class CompanyRepository {
       return company;
     });
 
-    return {
-      id: result.id,
-      name: result.name,
-      email: result.email,
-      address: result.address,
-      logo: result.logo,
-      employeesCount: result.employeesCount,
-      createdAt: result.createdAt.toISOString(),
-      updatedAt: result.updatedAt.toISOString(),
-    };
+    return result;
   }
 
   async update(companyId: string, data: UpdateCompanyRequest) {
@@ -137,16 +103,7 @@ export class CompanyRepository {
       },
     });
 
-    return {
-      id: updated.id,
-      name: updated.name,
-      email: updated.email,
-      address: updated.address,
-      logo: updated.logo,
-      employeesCount: updated.employeesCount,
-      createdAt: updated.createdAt.toISOString(),
-      updatedAt: updated.updatedAt.toISOString(),
-    };
+    return updated;
   }
 
   async delete(companyId: string) {

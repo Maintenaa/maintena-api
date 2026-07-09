@@ -18,20 +18,7 @@ export class EmployeeRepository {
       },
     });
 
-    return employees
-      .filter((uc) => uc.user !== null)
-      .map((uc) => ({
-        id: uc.user.id,
-        name: uc.user.name,
-        email: uc.user.email,
-        position: {
-          id: uc.position.id,
-          name: uc.position.name,
-          isAdmin: uc.position.isAdmin,
-          isTechnician: uc.position.isTechnician,
-          isOwner: uc.position.isOwner,
-        },
-      }));
+    return employees;
   }
 
   async findById(companyId: string, userId: string) {
@@ -47,18 +34,7 @@ export class EmployeeRepository {
       return null;
     }
 
-    return {
-      id: employee.user.id,
-      name: employee.user.name,
-      email: employee.user.email,
-      position: {
-        id: employee.position.id,
-        name: employee.position.name,
-        isAdmin: employee.position.isAdmin,
-        isTechnician: employee.position.isTechnician,
-        isOwner: employee.position.isOwner,
-      },
-    };
+    return employee;
   }
 
   async create(companyId: string, data: CreateEmployeeRequest) {
@@ -81,13 +57,14 @@ export class EmployeeRepository {
         },
       });
 
-      const position = await tx.position.create({
-        data: {
+      const position = await tx.position.findFirst({
+        where: {
           companyId,
-          name: data.positionName || "Employee",
-          isTechnician: true,
+          id: data.positionId,
         },
       });
+
+      if (!position) throw new ApiError("Position not found", 404);
 
       await tx.employee.create({
         data: {
@@ -97,22 +74,9 @@ export class EmployeeRepository {
         },
       });
 
-      await tx.company.update({
-        where: { id: companyId },
-        data: { employeesCount: { increment: 1 } },
-      });
-
       return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        position: {
-          id: position.id,
-          name: position.name,
-          isAdmin: position.isAdmin,
-          isTechnician: position.isTechnician,
-          isOwner: position.isOwner,
-        },
+        ...user,
+        position: position,
       };
     });
 
@@ -148,24 +112,20 @@ export class EmployeeRepository {
         },
       });
 
-      const position = await tx.position.update({
-        where: { id: employee.positionId },
-        data: {
-          ...(data.positionName && { name: data.positionName }),
-        },
+      const position = await tx.position.findFirst({
+        where: { id: data.positionId },
+      });
+
+      if (!position) throw new ApiError("Position not found", 404);
+
+      await tx.employee.update({
+        where: { id: employee.id },
+        data: { positionId: position.id },
       });
 
       return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        position: {
-          id: position.id,
-          name: position.name,
-          isAdmin: position.isAdmin,
-          isTechnician: position.isTechnician,
-          isOwner: position.isOwner,
-        },
+        ...user,
+        position: position,
       };
     });
 
@@ -190,11 +150,6 @@ export class EmployeeRepository {
       await tx.user.update({
         where: { id: userId },
         data: { deletedAt: new Date() },
-      });
-
-      await tx.company.update({
-        where: { id: companyId },
-        data: { employeesCount: { decrement: 1 } },
       });
     });
   }

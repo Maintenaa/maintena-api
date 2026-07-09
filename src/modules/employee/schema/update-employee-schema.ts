@@ -9,9 +9,10 @@ export const updateEmployeeRequestSchema = t.Object({
       error: "Email address is not valid",
     }),
   ),
-  positionName: t.Optional(
-    t.String({ minLength: 1, error: "Position name is required" }),
-  ),
+  positionId: t.Integer({
+    minimum: 1,
+    error: "Position ID is required",
+  }),
 });
 
 export type UpdateEmployeeRequest = Static<typeof updateEmployeeRequestSchema>;
