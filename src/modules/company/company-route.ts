@@ -4,8 +4,8 @@ import { companyResponseSchema } from "./schema/company-schema";
 import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
 import { companyRepository } from "./company-module";
 import { authGuard } from "../auth/guard/auth-guard";
-import { ownerGuard } from "./guard/owner-guard";
 import Elysia, { t } from "elysia";
+import { companyGuard } from "./guard/company-guard";
 
 export function companyRoute() {
   return new Elysia({ detail: { tags: ["Companies"] } })
@@ -91,7 +91,7 @@ export function companyRoute() {
         ),
     )
     .use(
-      ownerGuard()
+      companyGuard(["owner"])
         .model("UpdateCompanyRequest", updateCompanyRequestSchema)
         .model(
           "CompanyResponse",
