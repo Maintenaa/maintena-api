@@ -54,7 +54,7 @@ export class AuthRepository {
         },
       });
 
-      await tx.userCompany.create({
+      await tx.employee.create({
         data: {
           userId: user.id,
           companyId: companyRecord.id,

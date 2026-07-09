@@ -83,7 +83,7 @@ model User {
   updatedAt                      DateTime                        @default(now()) @updatedAt
   deletedAt                      DateTime?
   companies                      Company[]
-  userCompanies                  UserCompany[]
+  employees                      Employee[]
   workOrders                     WorkOrder[]
   workOrderAssigners             WorkOrderAssigner[]
   workOrderCosts                 WorkOrderCost[]
@@ -105,7 +105,7 @@ model Company {
   owner               User                @relation(fields: [ownerId], references: [id])
   employeesCount      Int                 @default(1)
   positions           Position[]
-  userCompanies       UserCompany[]
+  employees           Employee[]
   locations           Location[]
   assetCategories     AssetCategory[]
   inventoryCategories InventoryCategory[]
@@ -121,19 +121,19 @@ model Company {
 }
 
 model Position {
-  id            Int           @id @default(autoincrement())
-  companyId     String        @db.Uuid
-  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  name          String
-  isAdmin       Boolean       @default(false)
-  isTechnician  Boolean       @default(false)
-  isOwner       Boolean       @default(false)
-  userCompanies UserCompany[]
+  id           Int        @id @default(autoincrement())
+  companyId    String     @db.Uuid
+  company      Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name         String
+  isAdmin      Boolean    @default(false)
+  isTechnician Boolean    @default(false)
+  isOwner      Boolean    @default(false)
+  employees    Employee[]
 
   @@map("positions")
 }
 
-model UserCompany {
+model Employee {
   id         Int      @id @default(autoincrement())
   userId     String   @db.Uuid
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -142,7 +142,7 @@ model UserCompany {
   positionId Int
   position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
-  @@map("userCompanies")
+  @@map("employees")
 }
 
 model Location {
