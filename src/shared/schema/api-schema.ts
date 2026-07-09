@@ -26,7 +26,7 @@ export function createApiResponseSchema<T extends TSchema>(
     ),
   });
 
-  return t.Intersect([apiResponseSchema, schema]);
+  return t.Composite([apiResponseSchema, schema]);
 }
 
 interface OkOptions {
