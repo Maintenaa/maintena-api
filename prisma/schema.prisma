@@ -97,24 +97,24 @@ model User {
 }
 
 model Company {
-  id                  String              @id @default(uuid()) @db.Uuid
-  name                String
-  email               String?
-  address             String?             @db.Text
-  ownerId             String              @db.Uuid
-  owner               User                @relation(fields: [ownerId], references: [id])
-  employeesCount      Int                 @default(1)
-  positions           Position[]
-  employees           Employee[]
-  locations           Location[]
-  assetCategories     AssetCategory[]
-  inventoryCategories InventoryCategory[]
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @default(now()) @updatedAt
-  assets              Asset[]
-  inventorySuppliers  InventorySupplier[]
-  inventories         Inventory[]
-  logo                String?             @db.Text
+  id              String          @id @default(uuid()) @db.Uuid
+  name            String
+  email           String?
+  address         String?         @db.Text
+  ownerId         String          @db.Uuid
+  owner           User            @relation(fields: [ownerId], references: [id])
+  employeesCount  Int             @default(1)
+  positions       Position[]
+  employees       Employee[]
+  locations       Location[]
+  assetCategories AssetCategory[]
+  partCategories  PartCategory[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+  assets          Asset[]
+  partSuppliers   PartSupplier[]
+  parts           Part[]
+  logo            String?         @db.Text
 
   @@unique(name: "company_email_index", fields: [email])
   @@map("companies")
@@ -146,12 +146,12 @@ model Employee {
 }
 
 model Location {
-  id          String      @id @default(uuid()) @db.Uuid
-  name        String
-  companyId   String      @db.Uuid
-  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  assets      Asset[]
-  inventories Inventory[]
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String
+  companyId String  @db.Uuid
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assets    Asset[]
+  parts     Part[]
 
   @@map("locations")
 }
@@ -195,49 +195,49 @@ model Asset {
   @@map("assets")
 }
 
-model InventoryCategory {
+model PartCategory {
   id        String  @id @default(uuid()) @db.Uuid
   name      String
   companyId String  @db.Uuid
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  @@map("inventoryCategories")
+  @@map("partCategories")
 }
 
-model InventorySupplier {
-  id          String      @id @default(uuid()) @db.Uuid
-  name        String
-  companyId   String      @db.Uuid
-  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now()) @updatedAt
-  inventories Inventory[]
+model PartSupplier {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  companyId String   @db.Uuid
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  parts     Part[]
 
-  @@map("inventorySuppliers")
+  @@map("partSuppliers")
 }
 
-model Inventory {
-  id             String            @id @default(uuid()) @db.Uuid
-  companyId      String            @db.Uuid
-  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+model Part {
+  id             String          @id @default(uuid()) @db.Uuid
+  companyId      String          @db.Uuid
+  company        Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name           String
   code           String
-  description    String?           @db.Text
-  locationId     String            @db.Uuid
-  location       Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  quantity       Int               @default(0)
-  unit           String            @default("pcs")
-  cost           Float             @default(0)
+  description    String?         @db.Text
+  locationId     String          @db.Uuid
+  location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  quantity       Int             @default(0)
+  unit           String          @default("pcs")
+  cost           Float           @default(0)
   expirationDate DateTime?
-  supplierId     String            @db.Uuid
-  supplier       InventorySupplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @default(now()) @updatedAt
+  supplierId     String          @db.Uuid
+  supplier       PartSupplier    @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
   workOrderCosts WorkOrderCost[]
-  photo          String?           @db.Text
+  photo          String?         @db.Text
 
-  @@unique(name: "inventory_code_company_index", fields: [code, companyId])
-  @@map("inventories")
+  @@unique(name: "part_code_company_index", fields: [code, companyId])
+  @@map("parts")
 }
 
 model WorkOrder {
@@ -276,19 +276,19 @@ model WorkOrderAssigner {
 }
 
 model WorkOrderCost {
-  id                    Int               @id @default(autoincrement())
-  workOrderId           String            @db.Uuid
-  workOrder             WorkOrder         @relation(fields: [workOrderId], references: [id])
-  createdById           String            @db.Uuid
-  createdBy             User              @relation(fields: [createdById], references: [id])
-  type                  WorkOrderCostType
-  description           String?           @db.Text
-  inventoryUsedId       String?           @db.Uuid
-  inventoryUsed         Inventory?        @relation(fields: [inventoryUsedId], references: [id])
-  inventoryUsedQuantity Int?
-  amount                Float             @default(0)
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @default(now()) @updatedAt
+  id               Int               @id @default(autoincrement())
+  workOrderId      String            @db.Uuid
+  workOrder        WorkOrder         @relation(fields: [workOrderId], references: [id])
+  createdById      String            @db.Uuid
+  createdBy        User              @relation(fields: [createdById], references: [id])
+  type             WorkOrderCostType
+  description      String?           @db.Text
+  partUsedId       String?           @db.Uuid
+  partUsed         Part?             @relation(fields: [partUsedId], references: [id])
+  partUsedQuantity Int?
+  amount           Float             @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
 
   @@map("workOrderCosts")
 }
