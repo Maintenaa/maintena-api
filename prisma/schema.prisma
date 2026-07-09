@@ -200,6 +200,7 @@ model PartCategory {
   name      String
   companyId String  @db.Uuid
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  parts     Part[]
 
   @@map("partCategories")
 }
@@ -223,6 +224,8 @@ model Part {
   name           String
   code           String
   description    String?         @db.Text
+  categoryId     String          @db.Uuid
+  category       PartCategory    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   locationId     String          @db.Uuid
   location       Location        @relation(fields: [locationId], references: [id], onDelete: Cascade)
   quantity       Int             @default(0)

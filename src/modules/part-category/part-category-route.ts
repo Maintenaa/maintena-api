@@ -1,0 +1,129 @@
+import { createPartCategoryRequestSchema } from "./schema/create-part-category-schema";
+import { updatePartCategoryRequestSchema } from "./schema/update-part-category-schema";
+import { partCategoryResponseSchema } from "./schema/part-category-schema";
+import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { partCategoryRepository } from "./part-category-module";
+import { companyGuard } from "../company/guard/company-guard";
+import Elysia, { t } from "elysia";
+
+export function partCategoryRoute() {
+  const categoryIdParams = t.Object({
+    categoryId: t.String({ format: "uuid", error: "Category ID is required" }),
+  });
+
+  return new Elysia({ detail: { tags: ["Part Categories"] } })
+    .use(
+      companyGuard()
+        .model(
+          "PartCategoryResponse",
+          createApiResponseSchema(partCategoryResponseSchema),
+        )
+        .model(
+          "PartCategoryListResponse",
+          createApiResponseSchema(t.Array(partCategoryResponseSchema)),
+        )
+
+        .get(
+          "/companies/:companyId/part-categories",
+          async ({ company }) => {
+            const categories = await partCategoryRepository.findAll(company.id);
+            return ok(categories, { message: "Categories fetched" });
+          },
+          {
+            detail: {
+              summary: "List part categories",
+            },
+            response: {
+              200: "PartCategoryListResponse",
+            },
+          },
+        )
+
+        .get(
+          "/companies/:companyId/part-categories/:categoryId",
+          async ({ company, params }) => {
+            const category = await partCategoryRepository.findById(
+              company.id,
+              params.categoryId,
+            );
+
+            if (!category) {
+              throw new Error("Category not found");
+            }
+
+            return ok(category, { message: "Category fetched" });
+          },
+          {
+            params: categoryIdParams,
+            detail: {
+              summary: "Get part category detail",
+            },
+            response: {
+              200: "PartCategoryResponse",
+            },
+          },
+        ),
+    )
+    .use(
+      companyGuard(["owner", "admin"])
+        .model("CreatePartCategoryRequest", createPartCategoryRequestSchema)
+        .model("UpdatePartCategoryRequest", updatePartCategoryRequestSchema)
+        .model(
+          "PartCategoryResponse",
+          createApiResponseSchema(partCategoryResponseSchema),
+        )
+
+        .post(
+          "/companies/:companyId/part-categories",
+          async ({ company, body }) => {
+            const category = await partCategoryRepository.create(company.id, body);
+            return ok(category, { message: "Category created" });
+          },
+          {
+            detail: {
+              summary: "Create part category",
+            },
+            body: "CreatePartCategoryRequest",
+            response: {
+              200: "PartCategoryResponse",
+            },
+          },
+        )
+
+        .put(
+          "/companies/:companyId/part-categories/:categoryId",
+          async ({ company, params, body }) => {
+            const category = await partCategoryRepository.update(
+              company.id,
+              params.categoryId,
+              body,
+            );
+            return ok(category, { message: "Category updated" });
+          },
+          {
+            params: categoryIdParams,
+            detail: {
+              summary: "Update part category",
+            },
+            body: "UpdatePartCategoryRequest",
+            response: {
+              200: "PartCategoryResponse",
+            },
+          },
+        )
+
+        .delete(
+          "/companies/:companyId/part-categories/:categoryId",
+          async ({ company, params }) => {
+            await partCategoryRepository.delete(company.id, params.categoryId);
+            return ok(null, { message: "Category deleted" });
+          },
+          {
+            params: categoryIdParams,
+            detail: {
+              summary: "Delete part category",
+            },
+          },
+        ),
+    );
+}

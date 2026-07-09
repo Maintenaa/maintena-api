@@ -14,10 +14,7 @@ export function assetRoute() {
   return new Elysia({ detail: { tags: ["Assets"] } })
     .use(
       companyGuard()
-        .model(
-          "AssetResponse",
-          createApiResponseSchema(assetResponseSchema),
-        )
+        .model("AssetResponse", createApiResponseSchema(assetResponseSchema))
         .model(
           "AssetListResponse",
           createApiResponseSchema(t.Array(assetResponseSchema)),
@@ -27,7 +24,7 @@ export function assetRoute() {
           "/companies/:companyId/assets",
           async ({ company }) => {
             const assets = await assetRepository.findAll(company.id);
-            return ok(assets, { message: "Assets fetched" });
+            return ok(assets as any, { message: "Assets fetched" });
           },
           {
             detail: {
@@ -51,7 +48,7 @@ export function assetRoute() {
               throw new Error("Asset not found");
             }
 
-            return ok(asset, { message: "Asset fetched" });
+            return ok(asset as any, { message: "Asset fetched" });
           },
           {
             params: assetIdParams,
@@ -68,16 +65,13 @@ export function assetRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateAssetRequest", createAssetRequestSchema)
         .model("UpdateAssetRequest", updateAssetRequestSchema)
-        .model(
-          "AssetResponse",
-          createApiResponseSchema(assetResponseSchema),
-        )
+        .model("AssetResponse", createApiResponseSchema(assetResponseSchema))
 
         .post(
           "/companies/:companyId/assets",
           async ({ company, body }) => {
             const asset = await assetRepository.create(company.id, body);
-            return ok(asset, { message: "Asset created" });
+            return ok(asset as any, { message: "Asset created" });
           },
           {
             detail: {
@@ -98,7 +92,7 @@ export function assetRoute() {
               params.assetId,
               body,
             );
-            return ok(asset, { message: "Asset updated" });
+            return ok(asset as any, { message: "Asset updated" });
           },
           {
             params: assetIdParams,
