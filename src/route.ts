@@ -5,6 +5,7 @@ import { companyRoute } from "./modules/company/company-route";
 import { positionRoute } from "./modules/position/position-route";
 import { assetCategoryRoute } from "./modules/asset-category/asset-category-route";
 import { assetRoute } from "./modules/asset/asset-route";
+import { locationRoute } from "./modules/location/location-route";
 
 export function createRoutes(app: Elysia) {
   app.use(authRoute());
@@ -13,4 +14,5 @@ export function createRoutes(app: Elysia) {
   app.use(positionRoute());
   app.use(assetCategoryRoute());
   app.use(assetRoute());
+  app.use(locationRoute());
 }
