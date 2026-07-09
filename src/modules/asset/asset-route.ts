@@ -1,0 +1,129 @@
+import { createAssetRequestSchema } from "./schema/create-asset-schema";
+import { updateAssetRequestSchema } from "./schema/update-asset-schema";
+import { assetResponseSchema } from "./schema/asset-schema";
+import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { assetRepository } from "./asset-module";
+import { companyGuard } from "../company/guard/company-guard";
+import Elysia, { t } from "elysia";
+
+export function assetRoute() {
+  const assetIdParams = t.Object({
+    assetId: t.String({ format: "uuid", error: "Asset ID is required" }),
+  });
+
+  return new Elysia({ detail: { tags: ["Assets"] } })
+    .use(
+      companyGuard()
+        .model(
+          "AssetResponse",
+          createApiResponseSchema(assetResponseSchema),
+        )
+        .model(
+          "AssetListResponse",
+          createApiResponseSchema(t.Array(assetResponseSchema)),
+        )
+
+        .get(
+          "/companies/:companyId/assets",
+          async ({ company }) => {
+            const assets = await assetRepository.findAll(company.id);
+            return ok(assets, { message: "Assets fetched" });
+          },
+          {
+            detail: {
+              summary: "List assets",
+            },
+            response: {
+              200: "AssetListResponse",
+            },
+          },
+        )
+
+        .get(
+          "/companies/:companyId/assets/:assetId",
+          async ({ company, params }) => {
+            const asset = await assetRepository.findById(
+              company.id,
+              params.assetId,
+            );
+
+            if (!asset) {
+              throw new Error("Asset not found");
+            }
+
+            return ok(asset, { message: "Asset fetched" });
+          },
+          {
+            params: assetIdParams,
+            detail: {
+              summary: "Get asset detail",
+            },
+            response: {
+              200: "AssetResponse",
+            },
+          },
+        ),
+    )
+    .use(
+      companyGuard(["owner", "admin"])
+        .model("CreateAssetRequest", createAssetRequestSchema)
+        .model("UpdateAssetRequest", updateAssetRequestSchema)
+        .model(
+          "AssetResponse",
+          createApiResponseSchema(assetResponseSchema),
+        )
+
+        .post(
+          "/companies/:companyId/assets",
+          async ({ company, body }) => {
+            const asset = await assetRepository.create(company.id, body);
+            return ok(asset, { message: "Asset created" });
+          },
+          {
+            detail: {
+              summary: "Create asset",
+            },
+            body: "CreateAssetRequest",
+            response: {
+              200: "AssetResponse",
+            },
+          },
+        )
+
+        .put(
+          "/companies/:companyId/assets/:assetId",
+          async ({ company, params, body }) => {
+            const asset = await assetRepository.update(
+              company.id,
+              params.assetId,
+              body,
+            );
+            return ok(asset, { message: "Asset updated" });
+          },
+          {
+            params: assetIdParams,
+            detail: {
+              summary: "Update asset",
+            },
+            body: "UpdateAssetRequest",
+            response: {
+              200: "AssetResponse",
+            },
+          },
+        )
+
+        .delete(
+          "/companies/:companyId/assets/:assetId",
+          async ({ company, params }) => {
+            await assetRepository.delete(company.id, params.assetId);
+            return ok(null, { message: "Asset deleted" });
+          },
+          {
+            params: assetIdParams,
+            detail: {
+              summary: "Delete asset",
+            },
+          },
+        ),
+    );
+}
