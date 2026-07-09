@@ -14,7 +14,26 @@ async function main() {
   const app = new Elysia();
 
   app
-    .use(openapi({ path: "/docs" }))
+    .use(
+      openapi({
+        path: "/docs",
+        documentation: {
+          info: {
+            title: appConfig.name,
+            version: appConfig.version,
+          },
+          components: {
+            securitySchemes: {
+              "Bearer Auth": {
+                type: "http",
+                scheme: "bearer",
+                bearerFormat: "JWT",
+              },
+            },
+          },
+        },
+      }),
+    )
     .use(cors())
     .use(logMiddleware())
     .use(errorMiddleware());

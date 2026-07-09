@@ -8,24 +8,26 @@ import {
   refreshTokenRequestSchema,
 } from "./schema/auth-schema";
 import { REFRESH_TOKEN_COOKIE_KEY } from "./auth-constant";
+import { authGuard } from "./guard/auth-guard";
+import { userResponseSchema } from "../user/schema/user-schema";
 
 export function authRoute() {
   function setRefreshTokenCookie(
     cookie: Record<string, Cookie<unknown>>,
     value: string,
   ) {
-    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const refreshToken = cookie[REFRESH_TOKEN_COOKIE_KEY];
 
-    cookie[REFRESH_TOKEN_COOKIE_KEY].set({
-      value,
-      expires,
-      httpOnly: true,
-      secure: !isDevelopment(),
-      sameSite: isDevelopment() ? "none" : "lax",
-    });
+    refreshToken.value = value;
+    refreshToken.expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    refreshToken.httpOnly = true;
+    refreshToken.secure = !isDevelopment();
+    refreshToken.sameSite = isDevelopment() ? "none" : "lax";
   }
 
   return new Elysia({ detail: { tags: ["Auth"] } })
+    .model("LoginRequest", loginRequestSchema)
+    .model("AuthResponse", createApiResponseSchema(authResponseSchema))
 
     .post(
       "/login",
@@ -33,15 +35,15 @@ export function authRoute() {
         const result = await authRepository.login(body);
         setRefreshTokenCookie(cookie, result.refreshToken);
 
-        return ok(result);
+        return ok(result, { message: "Login success" });
       },
       {
         detail: {
           summary: "Login",
         },
-        body: loginRequestSchema,
+        body: "LoginRequest",
         response: {
-          200: createApiResponseSchema(authResponseSchema),
+          200: "AuthResponse",
         },
       },
     )
@@ -53,16 +55,36 @@ export function authRoute() {
         const result = await authRepository.refreshToken(token);
         setRefreshTokenCookie(cookie, result.refreshToken);
 
-        return ok(result);
+        return ok(result, { message: "Token refreshed" });
       },
       {
         cookie: refreshTokenRequestSchema,
         response: {
-          200: createApiResponseSchema(authResponseSchema),
+          200: "AuthResponse",
         },
         detail: {
           summary: "Refresh Token",
         },
       },
+    )
+
+    .use(
+      authGuard()
+        .model("ProfileResponse", createApiResponseSchema(userResponseSchema))
+
+        .get(
+          "/profile",
+          ({ user }) => {
+            return ok(user as any, { message: "Profile fetched" });
+          },
+          {
+            detail: {
+              summary: "Get Profile",
+            },
+            response: {
+              200: "ProfileResponse",
+            },
+          },
+        ),
     );
 }

@@ -19,7 +19,7 @@ export function errorMiddleware() {
       let errors: ErrorMap[] = [];
 
       for (const err of error.all) {
-        const path = err.path.substring(1);
+        const path = err.path;
         const message =
           typeof err.schema.error == "string" ? err.schema.error : err.message;
 
