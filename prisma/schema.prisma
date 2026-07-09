@@ -1,0 +1,354 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum AssetStatus {
+  operational
+  inMaintenance
+  underRepair
+  outOfService
+  decommissioned
+}
+
+enum AssetPriority {
+  low
+  medium
+  high
+  critical
+}
+
+enum WorkOrderType {
+  predictive
+  preventive
+  modification
+  corrective
+  emergency
+  inspection
+}
+
+enum WorkOrderStatus {
+  pending
+  inProgress
+  onHold
+  approved
+  completed
+  closed
+}
+
+enum WorkOrderPriority {
+  low
+  medium
+  high
+  critical
+}
+
+enum WorkOrderCostType {
+  labor
+  material
+}
+
+enum PreventiveMaintenanceFrequency {
+  daily
+  weekly
+  monthly
+  quarterly
+  semiAnnually
+  yearly
+}
+
+model User {
+  id                             String                          @id @default(uuid()) @db.Uuid
+  email                          String
+  password                       String
+  name                           String
+  emailVerifiedAt                DateTime?
+  role                           UserRole                        @default(user)
+  bannedUntil                    DateTime?
+  createdAt                      DateTime                        @default(now())
+  updatedAt                      DateTime                        @default(now()) @updatedAt
+  deletedAt                      DateTime?
+  companies                      Company[]
+  userCompanies                  UserCompany[]
+  workOrders                     WorkOrder[]
+  workOrderAssigners             WorkOrderAssigner[]
+  workOrderCosts                 WorkOrderCost[]
+  workOrderTimelines             WorkOrderTimeline[]
+  preventiveMaintenanceAssigners PreventiveMaintenanceAssigner[]
+  preventiveMaintenanceTimelines PreventiveMaintenanceTimeline[]
+  photo                          String?                         @db.Text
+
+  @@unique(name: "user_email_active_index", fields: [email, emailVerifiedAt, deletedAt])
+  @@map("users")
+}
+
+model Company {
+  id                  String              @id @default(uuid()) @db.Uuid
+  name                String
+  email               String?
+  address             String?             @db.Text
+  ownerId             String              @db.Uuid
+  owner               User                @relation(fields: [ownerId], references: [id])
+  employeesCount      Int                 @default(1)
+  positions           Position[]
+  userCompanies       UserCompany[]
+  locations           Location[]
+  assetCategories     AssetCategory[]
+  inventoryCategories InventoryCategory[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now()) @updatedAt
+  assets              Asset[]
+  inventorySuppliers  InventorySupplier[]
+  inventories         Inventory[]
+  logo                String?             @db.Text
+
+  @@unique(name: "company_email_index", fields: [email])
+  @@map("companies")
+}
+
+model Position {
+  id            Int           @id @default(autoincrement())
+  companyId     String        @db.Uuid
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name          String
+  isAdmin       Boolean       @default(false)
+  isTechnician  Boolean       @default(false)
+  isOwner       Boolean       @default(false)
+  userCompanies UserCompany[]
+
+  @@map("positions")
+}
+
+model UserCompany {
+  id         Int      @id @default(autoincrement())
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId  String   @db.Uuid
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  positionId Int
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@map("userCompanies")
+}
+
+model Location {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  companyId   String      @db.Uuid
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assets      Asset[]
+  inventories Inventory[]
+
+  @@map("locations")
+}
+
+model AssetCategory {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String
+  companyId String  @db.Uuid
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assets    Asset[]
+
+  @@map("assetCategories")
+}
+
+model Asset {
+  id                     String                  @id @default(uuid()) @db.Uuid
+  code                   String
+  name                   String
+  description            String?                 @db.Text
+  companyId              String                  @db.Uuid
+  company                Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  categoryId             String                  @db.Uuid
+  category               AssetCategory           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locationId             String                  @db.Uuid
+  location               Location                @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  status                 AssetStatus             @default(operational)
+  priority               AssetPriority           @default(medium)
+  lastMaintenanceAt      DateTime?
+  installationDate       DateTime?
+  expirationDate         DateTime?
+  manufacturer           String?
+  model                  String?
+  specifications         Json[]                  @default([])
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now()) @updatedAt
+  workOrders             WorkOrder[]
+  preventiveMaintenances PreventiveMaintenance[]
+  photo                  String?                 @db.Text
+
+  @@unique(name: "asset_code_company_index", fields: [code, companyId])
+  @@map("assets")
+}
+
+model InventoryCategory {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String
+  companyId String  @db.Uuid
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("inventoryCategories")
+}
+
+model InventorySupplier {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  companyId   String      @db.Uuid
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
+  inventories Inventory[]
+
+  @@map("inventorySuppliers")
+}
+
+model Inventory {
+  id             String            @id @default(uuid()) @db.Uuid
+  companyId      String            @db.Uuid
+  company        Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name           String
+  code           String
+  description    String?           @db.Text
+  locationId     String            @db.Uuid
+  location       Location          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  quantity       Int               @default(0)
+  unit           String            @default("pcs")
+  cost           Float             @default(0)
+  expirationDate DateTime?
+  supplierId     String            @db.Uuid
+  supplier       InventorySupplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @default(now()) @updatedAt
+  workOrderCosts WorkOrderCost[]
+  photo          String?           @db.Text
+
+  @@unique(name: "inventory_code_company_index", fields: [code, companyId])
+  @@map("inventories")
+}
+
+model WorkOrder {
+  id                 String              @id @default(uuid()) @db.Uuid
+  title              String
+  description        String?             @db.Text
+  type               WorkOrderType       @default(predictive)
+  status             WorkOrderStatus     @default(pending)
+  priority           WorkOrderPriority   @default(medium)
+  scheduledAt        DateTime?
+  esimatedDuration   Int? // in hours
+  notes              String?             @db.Text
+  assetId            String              @db.Uuid
+  asset              Asset               @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  requestedById      String              @db.Uuid
+  requestedBy        User                @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @default(now()) @updatedAt
+  deletedAt          DateTime?
+  photos             String[]            @default([])
+  workOrderAssigners WorkOrderAssigner[]
+  workOrderCosts     WorkOrderCost[]
+  workOrderTimelines WorkOrderTimeline[]
+
+  @@map("workOrders")
+}
+
+model WorkOrderAssigner {
+  id          Int       @id @default(autoincrement())
+  workOrderId String    @db.Uuid
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id])
+  assignerId  String    @db.Uuid
+  assigner    User      @relation(fields: [assignerId], references: [id])
+
+  @@map("workOrderAssigners")
+}
+
+model WorkOrderCost {
+  id                    Int               @id @default(autoincrement())
+  workOrderId           String            @db.Uuid
+  workOrder             WorkOrder         @relation(fields: [workOrderId], references: [id])
+  createdById           String            @db.Uuid
+  createdBy             User              @relation(fields: [createdById], references: [id])
+  type                  WorkOrderCostType
+  description           String?           @db.Text
+  inventoryUsedId       String?           @db.Uuid
+  inventoryUsed         Inventory?        @relation(fields: [inventoryUsedId], references: [id])
+  inventoryUsedQuantity Int?
+  amount                Float             @default(0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @default(now()) @updatedAt
+
+  @@map("workOrderCosts")
+}
+
+model WorkOrderTimeline {
+  id            Int               @id @default(autoincrement())
+  note          String            @db.Text
+  createdById   String            @db.Uuid
+  createdBy     User              @relation(fields: [createdById], references: [id])
+  attachmentUrl String?           @db.Text
+  workOrderId   String            @db.Uuid
+  workOrder     WorkOrder         @relation(fields: [workOrderId], references: [id])
+  priority      WorkOrderPriority @default(medium)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @default(now()) @updatedAt
+  photos        String[]          @default([])
+
+  @@map("workOrderTimelines")
+}
+
+model PreventiveMaintenance {
+  id                             String                          @id @default(uuid()) @db.Uuid
+  title                          String
+  description                    String?                         @db.Text
+  assetId                        String                          @db.Uuid
+  asset                          Asset                           @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tasks                          String[]                        @default([])
+  frequency                      PreventiveMaintenanceFrequency  @default(monthly)
+  startDate                      DateTime
+  lastPerformedAt                DateTime?
+  estimatedDuration              Int? // in hours
+  createdAt                      DateTime                        @default(now())
+  updatedAt                      DateTime                        @default(now()) @updatedAt
+  preventiveMaintenanceAssigners PreventiveMaintenanceAssigner[]
+  preventiveMaintenanceTimelines PreventiveMaintenanceTimeline[]
+
+  @@map("preventiveMaintenances")
+}
+
+model PreventiveMaintenanceAssigner {
+  id                      Int                   @id @default(autoincrement())
+  preventiveMaintenanceId String                @db.Uuid
+  preventiveMaintenance   PreventiveMaintenance @relation(fields: [preventiveMaintenanceId], references: [id])
+  assignerId              String                @db.Uuid
+  assigner                User                  @relation(fields: [assignerId], references: [id])
+
+  @@map("preventiveMaintenanceAssigners")
+}
+
+model PreventiveMaintenanceTimeline {
+  id                      Int                   @id @default(autoincrement())
+  note                    String                @db.Text
+  createdById             String                @db.Uuid
+  createdBy               User                  @relation(fields: [createdById], references: [id])
+  attachmentUrl           String?               @db.Text
+  preventiveMaintenanceId String                @db.Uuid
+  preventiveMaintenance   PreventiveMaintenance @relation(fields: [preventiveMaintenanceId], references: [id])
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @default(now()) @updatedAt
+  photos                  String[]              @default([])
+
+  @@map("preventiveMaintenanceTimelines")
+}
