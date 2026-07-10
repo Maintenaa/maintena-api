@@ -46,6 +46,6 @@ export function errorMiddleware() {
 
     console.error(error);
     set.status = 500;
-    return "Intenal server error";
+    return "Internal server error";
   });
 }
