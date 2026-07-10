@@ -3,6 +3,8 @@ import { ApiError } from "@/shared/error";
 import { Service } from "typedi";
 import { CreateCompanyRequest } from "../schema/create-company-schema";
 import { UpdateCompanyRequest } from "../schema/update-company-schema";
+import { mapCompanyWithPosition } from "../util/map-company";
+import { Position } from "@/generated/prisma/client";
 
 @Service()
 export class CompanyRepository {
@@ -15,7 +17,10 @@ export class CompanyRepository {
       },
     });
 
-    return employees;
+    const companies = employees.map((employee) =>
+      mapCompanyWithPosition(employee.company, employee.position as Position),
+    );
+    return companies;
   }
 
   async findById(companyId: string) {

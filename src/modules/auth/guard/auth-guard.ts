@@ -1,9 +1,9 @@
 import { jwtConfig } from "@/core/config";
 import { UserRole } from "@/generated/prisma/enums";
-import { UserRepository } from "@/modules/user/util/repository/user-repository";
+import { UserRepository } from "@/modules/user/repository/user-repository";
 import { ApiError } from "@/shared/error";
 import jwt from "@elysia/jwt";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 import Container from "typedi";
 import { AuthJwtPayload } from "../schema/auth-schema";
 
