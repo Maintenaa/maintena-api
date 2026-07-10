@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { connectionString } from "../constant";
 import { PrismaClient } from "@/generated/prisma/client";
 import adminSeeder from "./admin-seeder";
+import userSeeder from "./user-seeder";
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
@@ -11,7 +12,7 @@ const db = new PrismaClient({ adapter });
 type Seeder = (db: PrismaClient) => any;
 
 export async function main() {
-  const seeders: Seeder[] = [adminSeeder];
+  const seeders: Seeder[] = [adminSeeder, userSeeder];
 
   for await (const seeder of seeders) {
     await seeder(db);

@@ -22,8 +22,11 @@ export function authRoute() {
     refreshToken.value = value;
     refreshToken.expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     refreshToken.httpOnly = true;
-    refreshToken.secure = !isDevelopment();
-    refreshToken.sameSite = isDevelopment() ? "none" : "lax";
+
+    if (!isDevelopment()) {
+      refreshToken.secure = true;
+      refreshToken.sameSite = "lax";
+    }
   }
 
   return new Elysia({ detail: { tags: ["Auth"] } })
