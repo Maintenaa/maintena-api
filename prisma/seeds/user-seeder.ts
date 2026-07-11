@@ -53,7 +53,101 @@ export default async function userSeeder(db: PrismaClient) {
         positionId: position.id,
       },
     });
+
+    // --- Locations ---
+    const locations = await Promise.all(
+      [
+        "Main Plant",
+        "Warehouse A",
+        "Warehouse B",
+        "Outdoor Yard",
+        "Office Building",
+      ].map((name) =>
+        tx.location.create({
+          data: { name, companyId: company.id },
+        })
+      )
+    );
+
+    // --- Asset Categories ---
+    const assetCategories = await Promise.all(
+      ["Heavy Machinery", "Electrical", "HVAC", "Vehicle", "Tooling"].map(
+        (name) =>
+          tx.assetCategory.create({
+            data: { name, companyId: company.id },
+          })
+      )
+    );
+
+    // --- Assets ---
+    const assetData = [
+      { name: "Excavator CAT 320", code: "EXC-001", manufacturer: "Caterpillar", model: "320F", status: "operational" as const, priority: "high" as const },
+      { name: "Air Compressor Atlas", code: "CMP-001", manufacturer: "Atlas Copco", model: "GA 37", status: "operational" as const, priority: "medium" as const },
+      { name: "Forklift Toyota 8F", code: "FKL-001", manufacturer: "Toyota", model: "8FBE18", status: "inMaintenance" as const, priority: "medium" as const },
+      { name: "Generator Cummins", code: "GEN-001", manufacturer: "Cummins", model: "C150D5", status: "operational" as const, priority: "critical" as const },
+      { name: "Drill Press Makita", code: "DRP-001", manufacturer: "Makita", model: "DP4700", status: "operational" as const, priority: "low" as const },
+    ];
+
+    const assets = await Promise.all(
+      assetData.map((a, i) =>
+        tx.asset.create({
+          data: {
+            ...a,
+            companyId: company.id,
+            categoryId: assetCategories[i % assetCategories.length].id,
+            locationId: locations[i % locations.length].id,
+          },
+        })
+      )
+    );
+
+    // --- Part Suppliers ---
+    const suppliers = await Promise.all(
+      [
+        "Grainger Industrial",
+        "McMaster-Carr",
+        "MSC Industrial",
+        "Fastenal",
+        "Motion Industries",
+      ].map((name) =>
+        tx.partSupplier.create({
+          data: { name, companyId: company.id },
+        })
+      )
+    );
+
+    // --- Part Categories ---
+    const partCategories = await Promise.all(
+      ["Filters", "Bearings", "Belts", "Seals", "Fasteners"].map((name) =>
+        tx.partCategory.create({
+          data: { name, companyId: company.id },
+        })
+      )
+    );
+
+    // --- Parts ---
+    const partData = [
+      { name: "Hydraulic Filter HF-200", code: "FLT-001", quantity: 25, unit: "pcs", cost: 18.5 },
+      { name: "Ball Bearing 6205", code: "BRG-001", quantity: 50, unit: "pcs", cost: 8.75 },
+      { name: "V-Belt B68", code: "BLT-001", quantity: 15, unit: "pcs", cost: 22.0 },
+      { name: "O-Ring Kit OR-500", code: "SEL-001", quantity: 100, unit: "pcs", cost: 5.25 },
+      { name: "Bolt M12x50 SS", code: "FST-001", quantity: 200, unit: "pcs", cost: 1.5 },
+    ];
+
+    await Promise.all(
+      partData.map((p, i) =>
+        tx.part.create({
+          data: {
+            ...p,
+            companyId: company.id,
+            categoryId: partCategories[i].id,
+            locationId: locations[i].id,
+            supplierId: suppliers[i].id,
+          },
+        })
+      )
+    );
   });
 
-  log.info("Demo user saved successfully");
+  log.info("Demo user, locations, assets, suppliers, and parts saved successfully");
 }
