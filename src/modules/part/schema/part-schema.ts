@@ -5,17 +5,17 @@ export const partResponseSchema = t.Object({
   companyId: t.String(),
   name: t.String(),
   code: t.String(),
-  description: t.Optional(t.String()),
+  description: t.MaybeEmpty(t.String()),
   categoryId: t.String(),
   locationId: t.String(),
   quantity: t.Number(),
   unit: t.String(),
   cost: t.Number(),
-  expirationDate: t.Optional(t.String()),
+  expirationDate: t.MaybeEmpty(t.String()),
   supplierId: t.String(),
-  photo: t.Optional(t.String()),
-  createdAt: t.String(),
-  updatedAt: t.String(),
+  photo: t.MaybeEmpty(t.String()),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
 });
 
 export type PartResponse = Static<typeof partResponseSchema>;

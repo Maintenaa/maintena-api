@@ -1,7 +1,7 @@
 import { Static, t } from "elysia";
 
 export const updateEmployeeRequestSchema = t.Object({
-  name: t.Optional(t.String({ minLength: 1, error: "Name is required" })),
+  name: t.MaybeEmpty(t.String({ minLength: 1, error: "Name is required" })),
   email: t.Optional(
     t.String({
       minLength: 1,

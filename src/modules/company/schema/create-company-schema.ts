@@ -8,7 +8,7 @@ export const createCompanyRequestSchema = t.Object({
       error: "Email address is not valid",
     }),
   ),
-  address: t.Optional(t.String()),
+  address: t.MaybeEmpty(t.String()),
 });
 
 export type CreateCompanyRequest = Static<typeof createCompanyRequestSchema>;

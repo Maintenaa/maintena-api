@@ -7,8 +7,8 @@ export const companyResponseSchema = t.Object({
   address: t.MaybeEmpty(t.String()),
   logo: t.MaybeEmpty(t.String()),
   employeesCount: t.Number(),
-  createdAt: t.String(),
-  updatedAt: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
 });
 
 export type CompanyResponse = Static<typeof companyResponseSchema>;
