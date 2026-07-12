@@ -24,7 +24,7 @@ export function positionRoute() {
         )
 
         .get(
-          "/companies/:companyId/positions",
+          "/positions",
           async ({ company }) => {
             const positions = await positionRepository.findAll(company.id);
             return ok(positions, { message: "Positions fetched" });
@@ -40,7 +40,7 @@ export function positionRoute() {
         )
 
         .get(
-          "/companies/:companyId/positions/:positionId",
+          "/positions/:positionId",
           async ({ company, params }) => {
             const position = await positionRepository.findById(
               company.id,
@@ -74,7 +74,7 @@ export function positionRoute() {
         )
 
         .post(
-          "/companies/:companyId/positions",
+          "/positions",
           async ({ company, body }) => {
             const position = await positionRepository.create(company.id, body);
             return ok(position, { message: "Position created" });
@@ -91,7 +91,7 @@ export function positionRoute() {
         )
 
         .put(
-          "/companies/:companyId/positions/:positionId",
+          "/positions/:positionId",
           async ({ company, params, body }) => {
             const position = await positionRepository.update(
               company.id,
@@ -113,7 +113,7 @@ export function positionRoute() {
         )
 
         .delete(
-          "/companies/:companyId/positions/:positionId",
+          "/positions/:positionId",
           async ({ company, params }) => {
             await positionRepository.delete(company.id, params.positionId);
             return ok(null, { message: "Position deleted" });

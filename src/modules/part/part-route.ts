@@ -11,7 +11,9 @@ export function partRoute() {
     partId: t.String({ format: "uuid", error: "Part ID is required" }),
   });
 
-  return new Elysia({ detail: { tags: ["Parts"] } })
+  return new Elysia({
+    detail: { tags: ["Parts"] },
+  })
     .use(
       companyGuard()
         .model("PartResponse", createApiResponseSchema(partResponseSchema))
@@ -21,7 +23,7 @@ export function partRoute() {
         )
 
         .get(
-          "/companies/:companyId/parts",
+          "/parts",
           async ({ company }) => {
             const parts = await partRepository.findAll(company.id);
             return ok(parts as any, { message: "Parts fetched" });
@@ -37,7 +39,7 @@ export function partRoute() {
         )
 
         .get(
-          "/companies/:companyId/parts/:partId",
+          "/parts/:partId",
           async ({ company, params }) => {
             const part = await partRepository.findById(
               company.id,
@@ -68,7 +70,7 @@ export function partRoute() {
         .model("PartResponse", createApiResponseSchema(partResponseSchema))
 
         .post(
-          "/companies/:companyId/parts",
+          "/parts",
           async ({ company, body }) => {
             const part = await partRepository.create(company.id, body);
             return ok(part as any, { message: "Part created" });
@@ -85,7 +87,7 @@ export function partRoute() {
         )
 
         .put(
-          "/companies/:companyId/parts/:partId",
+          "/parts/:partId",
           async ({ company, params, body }) => {
             const part = await partRepository.update(
               company.id,
@@ -107,7 +109,7 @@ export function partRoute() {
         )
 
         .delete(
-          "/companies/:companyId/parts/:partId",
+          "/parts/:partId",
           async ({ company, params }) => {
             await partRepository.delete(company.id, params.partId);
             return ok(null, { message: "Part deleted" });

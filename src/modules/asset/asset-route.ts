@@ -21,7 +21,7 @@ export function assetRoute() {
         )
 
         .get(
-          "/companies/:companyId/assets",
+          "/assets",
           async ({ company }) => {
             const assets = await assetRepository.findAll(company.id);
             return ok(assets as any, { message: "Assets fetched" });
@@ -37,7 +37,7 @@ export function assetRoute() {
         )
 
         .get(
-          "/companies/:companyId/assets/:assetId",
+          "/assets/:assetId",
           async ({ company, params }) => {
             const asset = await assetRepository.findById(
               company.id,
@@ -68,7 +68,7 @@ export function assetRoute() {
         .model("AssetResponse", createApiResponseSchema(assetResponseSchema))
 
         .post(
-          "/companies/:companyId/assets",
+          "/assets",
           async ({ company, body }) => {
             const asset = await assetRepository.create(company.id, body);
             return ok(asset as any, { message: "Asset created" });
@@ -85,7 +85,7 @@ export function assetRoute() {
         )
 
         .put(
-          "/companies/:companyId/assets/:assetId",
+          "/assets/:assetId",
           async ({ company, params, body }) => {
             const asset = await assetRepository.update(
               company.id,
@@ -107,7 +107,7 @@ export function assetRoute() {
         )
 
         .delete(
-          "/companies/:companyId/assets/:assetId",
+          "/assets/:assetId",
           async ({ company, params }) => {
             await assetRepository.delete(company.id, params.assetId);
             return ok(null, { message: "Asset deleted" });

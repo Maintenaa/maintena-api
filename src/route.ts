@@ -11,14 +11,18 @@ import { partSupplierRoute } from "./modules/part-supplier/part-supplier-route";
 import { partRoute } from "./modules/part/part-route";
 
 export function createRoutes(app: Elysia) {
-  app.use(authRoute());
-  app.use(companyRoute());
-  app.use(employeeRoute());
-  app.use(positionRoute());
-  app.use(assetCategoryRoute());
-  app.use(assetRoute());
-  app.use(locationRoute());
-  app.use(partCategoryRoute());
-  app.use(partSupplierRoute());
-  app.use(partRoute());
+  app
+    .use(authRoute())
+    .use(companyRoute())
+    .use(
+      new Elysia({ prefix: "/companies/:companyId" })
+        .use(employeeRoute())
+        .use(positionRoute())
+        .use(assetCategoryRoute())
+        .use(assetRoute())
+        .use(locationRoute())
+        .use(partCategoryRoute())
+        .use(partSupplierRoute())
+        .use(partRoute()),
+    );
 }

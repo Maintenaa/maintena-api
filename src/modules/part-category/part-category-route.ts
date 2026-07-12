@@ -24,7 +24,7 @@ export function partCategoryRoute() {
         )
 
         .get(
-          "/companies/:companyId/part-categories",
+          "/part-categories",
           async ({ company }) => {
             const categories = await partCategoryRepository.findAll(company.id);
             return ok(categories, { message: "Categories fetched" });
@@ -40,7 +40,7 @@ export function partCategoryRoute() {
         )
 
         .get(
-          "/companies/:companyId/part-categories/:categoryId",
+          "/part-categories/:categoryId",
           async ({ company, params }) => {
             const category = await partCategoryRepository.findById(
               company.id,
@@ -74,9 +74,12 @@ export function partCategoryRoute() {
         )
 
         .post(
-          "/companies/:companyId/part-categories",
+          "/part-categories",
           async ({ company, body }) => {
-            const category = await partCategoryRepository.create(company.id, body);
+            const category = await partCategoryRepository.create(
+              company.id,
+              body,
+            );
             return ok(category, { message: "Category created" });
           },
           {
@@ -91,7 +94,7 @@ export function partCategoryRoute() {
         )
 
         .put(
-          "/companies/:companyId/part-categories/:categoryId",
+          "/part-categories/:categoryId",
           async ({ company, params, body }) => {
             const category = await partCategoryRepository.update(
               company.id,
@@ -113,7 +116,7 @@ export function partCategoryRoute() {
         )
 
         .delete(
-          "/companies/:companyId/part-categories/:categoryId",
+          "/part-categories/:categoryId",
           async ({ company, params }) => {
             await partCategoryRepository.delete(company.id, params.categoryId);
             return ok(null, { message: "Category deleted" });

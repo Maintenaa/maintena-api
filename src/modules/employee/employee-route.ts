@@ -24,7 +24,7 @@ export function employeeRoute() {
         )
 
         .get(
-          "/companies/:companyId/employees",
+          "/employees",
           async ({ company }) => {
             const employees = await employeeRepository.findAll(company.id);
             return ok(employees as any, { message: "Employees fetched" });
@@ -40,7 +40,7 @@ export function employeeRoute() {
         )
 
         .get(
-          "/companies/:companyId/employees/:userId",
+          "/employees/:userId",
           async ({ company, params }) => {
             const employee = await employeeRepository.findById(
               company.id,
@@ -74,7 +74,7 @@ export function employeeRoute() {
         )
 
         .post(
-          "/companies/:companyId/employees",
+          "/employees",
           async ({ company, body }) => {
             const employee = await employeeRepository.create(company.id, body);
             return ok(employee, { message: "Employee created" });
@@ -91,7 +91,7 @@ export function employeeRoute() {
         )
 
         .put(
-          "/companies/:companyId/employees/:userId",
+          "/employees/:userId",
           async ({ company, params, body }) => {
             const employee = await employeeRepository.update(
               company.id,
@@ -113,7 +113,7 @@ export function employeeRoute() {
         )
 
         .delete(
-          "/companies/:companyId/employees/:userId",
+          "/employees/:userId",
           async ({ company, params }) => {
             await employeeRepository.delete(company.id, params.userId);
             return ok(null, { message: "Employee deleted" });

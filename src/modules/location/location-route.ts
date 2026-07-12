@@ -11,7 +11,9 @@ export function locationRoute() {
     locationId: t.String({ format: "uuid", error: "Location ID is required" }),
   });
 
-  return new Elysia({ detail: { tags: ["Locations"] } })
+  return new Elysia({
+    detail: { tags: ["Locations"] },
+  })
     .use(
       companyGuard()
         .model(
@@ -24,7 +26,7 @@ export function locationRoute() {
         )
 
         .get(
-          "/companies/:companyId/locations",
+          "locations",
           async ({ company }) => {
             const locations = await locationRepository.findAll(company.id);
             return ok(locations, { message: "Locations fetched" });
@@ -40,7 +42,7 @@ export function locationRoute() {
         )
 
         .get(
-          "/companies/:companyId/locations/:locationId",
+          "/locations/:locationId",
           async ({ company, params }) => {
             const location = await locationRepository.findById(
               company.id,
@@ -74,7 +76,7 @@ export function locationRoute() {
         )
 
         .post(
-          "/companies/:companyId/locations",
+          "/locations",
           async ({ company, body }) => {
             const location = await locationRepository.create(company.id, body);
             return ok(location, { message: "Location created" });
@@ -91,7 +93,7 @@ export function locationRoute() {
         )
 
         .put(
-          "/companies/:companyId/locations/:locationId",
+          "/locations/:locationId",
           async ({ company, params, body }) => {
             const location = await locationRepository.update(
               company.id,
@@ -113,7 +115,7 @@ export function locationRoute() {
         )
 
         .delete(
-          "/companies/:companyId/locations/:locationId",
+          "/locations/:locationId",
           async ({ company, params }) => {
             await locationRepository.delete(company.id, params.locationId);
             return ok(null, { message: "Location deleted" });

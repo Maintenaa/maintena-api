@@ -24,9 +24,11 @@ export function assetCategoryRoute() {
         )
 
         .get(
-          "/companies/:companyId/asset-categories",
+          "/asset-categories",
           async ({ company }) => {
-            const categories = await assetCategoryRepository.findAll(company.id);
+            const categories = await assetCategoryRepository.findAll(
+              company.id,
+            );
             return ok(categories, { message: "Categories fetched" });
           },
           {
@@ -40,7 +42,7 @@ export function assetCategoryRoute() {
         )
 
         .get(
-          "/companies/:companyId/asset-categories/:categoryId",
+          "/asset-categories/:categoryId",
           async ({ company, params }) => {
             const category = await assetCategoryRepository.findById(
               company.id,
@@ -74,9 +76,12 @@ export function assetCategoryRoute() {
         )
 
         .post(
-          "/companies/:companyId/asset-categories",
+          "/asset-categories",
           async ({ company, body }) => {
-            const category = await assetCategoryRepository.create(company.id, body);
+            const category = await assetCategoryRepository.create(
+              company.id,
+              body,
+            );
             return ok(category, { message: "Category created" });
           },
           {
@@ -91,7 +96,7 @@ export function assetCategoryRoute() {
         )
 
         .put(
-          "/companies/:companyId/asset-categories/:categoryId",
+          "/asset-categories/:categoryId",
           async ({ company, params, body }) => {
             const category = await assetCategoryRepository.update(
               company.id,
@@ -113,7 +118,7 @@ export function assetCategoryRoute() {
         )
 
         .delete(
-          "/companies/:companyId/asset-categories/:categoryId",
+          "/asset-categories/:categoryId",
           async ({ company, params }) => {
             await assetCategoryRepository.delete(company.id, params.categoryId);
             return ok(null, { message: "Category deleted" });

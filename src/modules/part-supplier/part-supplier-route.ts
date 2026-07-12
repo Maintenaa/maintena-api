@@ -24,7 +24,7 @@ export function partSupplierRoute() {
         )
 
         .get(
-          "/companies/:companyId/part-suppliers",
+          "/part-suppliers",
           async ({ company }) => {
             const suppliers = await partSupplierRepository.findAll(company.id);
             return ok(suppliers as any, { message: "Suppliers fetched" });
@@ -40,7 +40,7 @@ export function partSupplierRoute() {
         )
 
         .get(
-          "/companies/:companyId/part-suppliers/:supplierId",
+          "/part-suppliers/:supplierId",
           async ({ company, params }) => {
             const supplier = await partSupplierRepository.findById(
               company.id,
@@ -74,7 +74,7 @@ export function partSupplierRoute() {
         )
 
         .post(
-          "/companies/:companyId/part-suppliers",
+          "/part-suppliers",
           async ({ company, body }) => {
             const supplier = await partSupplierRepository.create(
               company.id,
@@ -94,7 +94,7 @@ export function partSupplierRoute() {
         )
 
         .put(
-          "/companies/:companyId/part-suppliers/:supplierId",
+          "/part-suppliers/:supplierId",
           async ({ company, params, body }) => {
             const supplier = await partSupplierRepository.update(
               company.id,
@@ -116,7 +116,7 @@ export function partSupplierRoute() {
         )
 
         .delete(
-          "/companies/:companyId/part-suppliers/:supplierId",
+          "/part-suppliers/:supplierId",
           async ({ company, params }) => {
             await partSupplierRepository.delete(company.id, params.supplierId);
             return ok(null, { message: "Supplier deleted" });
