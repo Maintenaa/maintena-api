@@ -12,6 +12,7 @@ import { partRoute } from "./modules/part/part-route";
 import { failureCodeRoute } from "./modules/failure-code/failure-code-route";
 import { workOrderTypeRoute } from "./modules/work-order-type/work-order-type-route";
 import { workOrderRoute } from "./modules/work-order/work-order-route";
+import { pmRoute } from "./modules/preventive-maintenance/pm-route";
 
 export function createRoutes(app: Elysia) {
   app
@@ -29,6 +30,7 @@ export function createRoutes(app: Elysia) {
         .use(partRoute())
         .use(failureCodeRoute())
         .use(workOrderTypeRoute())
-        .use(workOrderRoute()),
+        .use(workOrderRoute())
+        .use(pmRoute()),
     );
 }
