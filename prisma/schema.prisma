@@ -25,15 +25,6 @@ enum AssetStatus {
   decommissioned
 }
 
-enum WorkOrderType {
-  predictive
-  preventive
-  modification
-  corrective
-  emergency
-  inspection
-}
-
 enum WorkOrderStatus {
   pending
   inProgress
@@ -108,6 +99,7 @@ model Company {
   partSuppliers   PartSupplier[]
   parts           Part[]
   logo            String?         @db.Text
+  failureCodes    FailureCode[]
 
   @@unique(name: "company_email_index", fields: [email])
   @@map("companies")
@@ -235,11 +227,34 @@ model Part {
   @@map("parts")
 }
 
+model FailureCode {
+  id          String      @id @default(uuid()) @db.Uuid
+  companyId   String      @db.Uuid
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  code        String
+  name        String
+  description String      @db.Text
+  workOrders  WorkOrder[]
+
+  @@map("failureCodes")
+}
+
+model WorkOrderType {
+  id          String      @id @default(uuid()) @db.Uuid
+  companyId   String      @db.Uuid
+  name        String
+  description String?     @db.Text
+  workOrders  WorkOrder[]
+}
+
 model WorkOrder {
   id                 String              @id @default(uuid()) @db.Uuid
   title              String
   description        String?             @db.Text
-  type               WorkOrderType       @default(predictive)
+  typeId             String?             @db.Uuid
+  type               WorkOrderType?      @relation(fields: [typeId], references: [id], onDelete: SetNull)
+  failureCodeId      String              @db.Uuid
+  failureCode        FailureCode         @relation(fields: [failureCodeId], references: [id], onDelete: Cascade)
   status             WorkOrderStatus     @default(pending)
   priority           WorkOrderPriority   @default(medium)
   scheduledAt        DateTime?
