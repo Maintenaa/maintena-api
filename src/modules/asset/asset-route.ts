@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function assetRoute() {
-  const assetIdParams = t.Object({
-    assetId: t.String({ format: "uuid", error: "Asset ID is required" }),
-  });
-
   return new Elysia({ detail: { tags: ["Assets"] } })
     .use(
       companyGuard()
@@ -51,7 +47,6 @@ export function assetRoute() {
             return ok(asset as any, { message: "Asset fetched" });
           },
           {
-            params: assetIdParams,
             detail: {
               summary: "Get asset detail",
             },
@@ -95,7 +90,6 @@ export function assetRoute() {
             return ok(asset as any, { message: "Asset updated" });
           },
           {
-            params: assetIdParams,
             detail: {
               summary: "Update asset",
             },
@@ -113,7 +107,6 @@ export function assetRoute() {
             return ok(null, { message: "Asset deleted" });
           },
           {
-            params: assetIdParams,
             detail: {
               summary: "Delete asset",
             },

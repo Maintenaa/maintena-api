@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function partRoute() {
-  const partIdParams = t.Object({
-    partId: t.String({ format: "uuid", error: "Part ID is required" }),
-  });
-
   return new Elysia({
     detail: { tags: ["Parts"] },
   })
@@ -53,7 +49,6 @@ export function partRoute() {
             return ok(part as any, { message: "Part fetched" });
           },
           {
-            params: partIdParams,
             detail: {
               summary: "Get part detail",
             },
@@ -97,7 +92,6 @@ export function partRoute() {
             return ok(part as any, { message: "Part updated" });
           },
           {
-            params: partIdParams,
             detail: {
               summary: "Update part",
             },
@@ -115,7 +109,6 @@ export function partRoute() {
             return ok(null, { message: "Part deleted" });
           },
           {
-            params: partIdParams,
             detail: {
               summary: "Delete part",
             },

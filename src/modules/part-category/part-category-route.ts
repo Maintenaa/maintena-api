@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function partCategoryRoute() {
-  const categoryIdParams = t.Object({
-    categoryId: t.String({ format: "uuid", error: "Category ID is required" }),
-  });
-
   return new Elysia({ detail: { tags: ["Part Categories"] } })
     .use(
       companyGuard()
@@ -54,7 +50,6 @@ export function partCategoryRoute() {
             return ok(category, { message: "Category fetched" });
           },
           {
-            params: categoryIdParams,
             detail: {
               summary: "Get part category detail",
             },
@@ -104,7 +99,6 @@ export function partCategoryRoute() {
             return ok(category, { message: "Category updated" });
           },
           {
-            params: categoryIdParams,
             detail: {
               summary: "Update part category",
             },
@@ -122,7 +116,6 @@ export function partCategoryRoute() {
             return ok(null, { message: "Category deleted" });
           },
           {
-            params: categoryIdParams,
             detail: {
               summary: "Delete part category",
             },

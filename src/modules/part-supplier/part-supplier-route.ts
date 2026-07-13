@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function partSupplierRoute() {
-  const supplierIdParams = t.Object({
-    supplierId: t.String({ format: "uuid", error: "Supplier ID is required" }),
-  });
-
   return new Elysia({ detail: { tags: ["Part Suppliers"] } })
     .use(
       companyGuard()
@@ -54,7 +50,6 @@ export function partSupplierRoute() {
             return ok(supplier as any, { message: "Supplier fetched" });
           },
           {
-            params: supplierIdParams,
             detail: {
               summary: "Get part supplier detail",
             },
@@ -104,7 +99,6 @@ export function partSupplierRoute() {
             return ok(supplier as any, { message: "Supplier updated" });
           },
           {
-            params: supplierIdParams,
             detail: {
               summary: "Update part supplier",
             },
@@ -122,7 +116,6 @@ export function partSupplierRoute() {
             return ok(null, { message: "Supplier deleted" });
           },
           {
-            params: supplierIdParams,
             detail: {
               summary: "Delete part supplier",
             },

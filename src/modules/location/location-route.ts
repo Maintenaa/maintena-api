@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function locationRoute() {
-  const locationIdParams = t.Object({
-    locationId: t.String({ format: "uuid", error: "Location ID is required" }),
-  });
-
   return new Elysia({
     detail: { tags: ["Locations"] },
   })
@@ -56,7 +52,6 @@ export function locationRoute() {
             return ok(location, { message: "Location fetched" });
           },
           {
-            params: locationIdParams,
             detail: {
               summary: "Get location detail",
             },
@@ -103,7 +98,6 @@ export function locationRoute() {
             return ok(location, { message: "Location updated" });
           },
           {
-            params: locationIdParams,
             detail: {
               summary: "Update location",
             },
@@ -121,7 +115,6 @@ export function locationRoute() {
             return ok(null, { message: "Location deleted" });
           },
           {
-            params: locationIdParams,
             detail: {
               summary: "Delete location",
             },

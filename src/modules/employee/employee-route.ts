@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function employeeRoute() {
-  const userIdParams = t.Object({
-    userId: t.String({ format: "uuid", error: "Employee ID is required" }),
-  });
-
   return new Elysia({ detail: { tags: ["Employees"] } })
     .use(
       companyGuard()
@@ -54,7 +50,6 @@ export function employeeRoute() {
             return ok(employee as any, { message: "Employee fetched" });
           },
           {
-            params: userIdParams,
             detail: {
               summary: "Get employee detail",
             },
@@ -101,7 +96,6 @@ export function employeeRoute() {
             return ok(employee, { message: "Employee updated" });
           },
           {
-            params: userIdParams,
             detail: {
               summary: "Update employee",
             },
@@ -119,7 +113,6 @@ export function employeeRoute() {
             return ok(null, { message: "Employee deleted" });
           },
           {
-            params: userIdParams,
             detail: {
               summary: "Delete employee",
             },

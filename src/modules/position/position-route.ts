@@ -7,10 +7,6 @@ import { companyGuard } from "../company/guard/company-guard";
 import Elysia, { t } from "elysia";
 
 export function positionRoute() {
-  const positionIdParams = t.Object({
-    positionId: t.Number({ error: "Position ID is required" }),
-  });
-
   return new Elysia({ detail: { tags: ["Positions"] } })
     .use(
       companyGuard()
@@ -44,7 +40,7 @@ export function positionRoute() {
           async ({ company, params }) => {
             const position = await positionRepository.findById(
               company.id,
-              params.positionId,
+              Number(params.positionId),
             );
 
             if (!position) {
@@ -54,7 +50,6 @@ export function positionRoute() {
             return ok(position, { message: "Position fetched" });
           },
           {
-            params: positionIdParams,
             detail: {
               summary: "Get position detail",
             },
@@ -95,13 +90,12 @@ export function positionRoute() {
           async ({ company, params, body }) => {
             const position = await positionRepository.update(
               company.id,
-              params.positionId,
+              Number(params.positionId),
               body,
             );
             return ok(position, { message: "Position updated" });
           },
           {
-            params: positionIdParams,
             detail: {
               summary: "Update position",
             },
@@ -115,11 +109,13 @@ export function positionRoute() {
         .delete(
           "/positions/:positionId",
           async ({ company, params }) => {
-            await positionRepository.delete(company.id, params.positionId);
+            await positionRepository.delete(
+              company.id,
+              Number(params.positionId),
+            );
             return ok(null, { message: "Position deleted" });
           },
           {
-            params: positionIdParams,
             detail: {
               summary: "Delete position",
             },
