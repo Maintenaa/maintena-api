@@ -9,6 +9,8 @@ import { locationRoute } from "./modules/location/location-route";
 import { partCategoryRoute } from "./modules/part-category/part-category-route";
 import { partSupplierRoute } from "./modules/part-supplier/part-supplier-route";
 import { partRoute } from "./modules/part/part-route";
+import { failureCodeRoute } from "./modules/failure-code/failure-code-route";
+import { workOrderTypeRoute } from "./modules/work-order-type/work-order-type-route";
 
 export function createRoutes(app: Elysia) {
   app
@@ -23,6 +25,8 @@ export function createRoutes(app: Elysia) {
         .use(locationRoute())
         .use(partCategoryRoute())
         .use(partSupplierRoute())
-        .use(partRoute()),
+        .use(partRoute())
+        .use(failureCodeRoute())
+        .use(workOrderTypeRoute()),
     );
 }

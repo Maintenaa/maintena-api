@@ -100,6 +100,7 @@ model Company {
   parts           Part[]
   logo            String?         @db.Text
   failureCodes    FailureCode[]
+  workOrderTypes  WorkOrderType[]
 
   @@unique(name: "company_email_index", fields: [email])
   @@map("companies")
@@ -242,9 +243,12 @@ model FailureCode {
 model WorkOrderType {
   id          String      @id @default(uuid()) @db.Uuid
   companyId   String      @db.Uuid
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
   name        String
   description String?     @db.Text
   workOrders  WorkOrder[]
+
+  @@map("workOrderTypes")
 }
 
 model WorkOrder {
