@@ -1,11 +1,19 @@
 import { Static, t } from "elysia";
 
 export const updateAssetRequestSchema = t.Object({
-  code: t.MaybeEmpty(t.String({ minLength: 1, error: "Asset code is required" })),
-  name: t.MaybeEmpty(t.String({ minLength: 1, error: "Asset name is required" })),
+  code: t.MaybeEmpty(
+    t.String({ minLength: 1, error: "Asset code is required" }),
+  ),
+  name: t.MaybeEmpty(
+    t.String({ minLength: 1, error: "Asset name is required" }),
+  ),
   description: t.MaybeEmpty(t.String()),
-  categoryId: t.MaybeEmpty(t.String({ format: "uuid", error: "Category ID is required" })),
-  locationId: t.MaybeEmpty(t.String({ format: "uuid", error: "Location ID is required" })),
+  categoryId: t.MaybeEmpty(
+    t.String({ format: "uuid", error: "Category ID is required" }),
+  ),
+  locationId: t.MaybeEmpty(
+    t.String({ format: "uuid", error: "Location ID is required" }),
+  ),
   status: t.Optional(
     t.Union([
       t.Literal("operational"),
@@ -13,14 +21,6 @@ export const updateAssetRequestSchema = t.Object({
       t.Literal("underRepair"),
       t.Literal("outOfService"),
       t.Literal("decommissioned"),
-    ]),
-  ),
-  priority: t.Optional(
-    t.Union([
-      t.Literal("low"),
-      t.Literal("medium"),
-      t.Literal("high"),
-      t.Literal("critical"),
     ]),
   ),
   lastMaintenanceAt: t.MaybeEmpty(t.String()),

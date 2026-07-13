@@ -8,13 +8,6 @@ const assetStatusEnum = t.Union([
   t.Literal("decommissioned"),
 ]);
 
-const assetPriorityEnum = t.Union([
-  t.Literal("low"),
-  t.Literal("medium"),
-  t.Literal("high"),
-  t.Literal("critical"),
-]);
-
 export const assetResponseSchema = t.Object({
   id: t.String(),
   code: t.String(),
@@ -24,7 +17,6 @@ export const assetResponseSchema = t.Object({
   categoryId: t.String(),
   locationId: t.String(),
   status: assetStatusEnum,
-  priority: assetPriorityEnum,
   lastMaintenanceAt: t.MaybeEmpty(t.String()),
   installationDate: t.MaybeEmpty(t.String()),
   expirationDate: t.MaybeEmpty(t.String()),

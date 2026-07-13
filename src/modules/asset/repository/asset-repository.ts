@@ -66,7 +66,6 @@ export class AssetRepository {
         categoryId: data.categoryId,
         locationId: data.locationId,
         status: data.status ?? "operational",
-        priority: data.priority ?? "medium",
         lastMaintenanceAt: data.lastMaintenanceAt
           ? new Date(data.lastMaintenanceAt)
           : undefined,
@@ -132,11 +131,12 @@ export class AssetRepository {
       data: {
         ...(data.code && { code: data.code }),
         ...(data.name && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
         ...(data.categoryId && { categoryId: data.categoryId }),
         ...(data.locationId && { locationId: data.locationId }),
         ...(data.status && { status: data.status }),
-        ...(data.priority && { priority: data.priority }),
         ...(data.lastMaintenanceAt !== undefined && {
           lastMaintenanceAt: data.lastMaintenanceAt
             ? new Date(data.lastMaintenanceAt)
@@ -152,7 +152,9 @@ export class AssetRepository {
             ? new Date(data.expirationDate)
             : null,
         }),
-        ...(data.manufacturer !== undefined && { manufacturer: data.manufacturer }),
+        ...(data.manufacturer !== undefined && {
+          manufacturer: data.manufacturer,
+        }),
         ...(data.model !== undefined && { model: data.model }),
         ...(data.specifications !== undefined && {
           specifications: data.specifications,

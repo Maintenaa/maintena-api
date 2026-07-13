@@ -5,9 +5,6 @@ CREATE TYPE "UserRole" AS ENUM ('user', 'admin');
 CREATE TYPE "AssetStatus" AS ENUM ('operational', 'inMaintenance', 'underRepair', 'outOfService', 'decommissioned');
 
 -- CreateEnum
-CREATE TYPE "AssetPriority" AS ENUM ('low', 'medium', 'high', 'critical');
-
--- CreateEnum
 CREATE TYPE "WorkOrderType" AS ENUM ('predictive', 'preventive', 'modification', 'corrective', 'emergency', 'inspection');
 
 -- CreateEnum
@@ -67,13 +64,13 @@ CREATE TABLE "positions" (
 );
 
 -- CreateTable
-CREATE TABLE "userCompanies" (
+CREATE TABLE "employees" (
     "id" SERIAL NOT NULL,
     "userId" UUID NOT NULL,
     "companyId" UUID NOT NULL,
-    "positionId" INTEGER NOT NULL,
+    "positionId" INTEGER,
 
-    CONSTRAINT "userCompanies_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "employees_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -104,7 +101,6 @@ CREATE TABLE "assets" (
     "categoryId" UUID NOT NULL,
     "locationId" UUID NOT NULL,
     "status" "AssetStatus" NOT NULL DEFAULT 'operational',
-    "priority" "AssetPriority" NOT NULL DEFAULT 'medium',
     "lastMaintenanceAt" TIMESTAMP(3),
     "installationDate" TIMESTAMP(3),
     "expirationDate" TIMESTAMP(3),
@@ -119,32 +115,33 @@ CREATE TABLE "assets" (
 );
 
 -- CreateTable
-CREATE TABLE "inventoryCategories" (
+CREATE TABLE "partCategories" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "companyId" UUID NOT NULL,
 
-    CONSTRAINT "inventoryCategories_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "partCategories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "inventorySuppliers" (
+CREATE TABLE "partSuppliers" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "companyId" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "inventorySuppliers_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "partSuppliers_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "inventories" (
+CREATE TABLE "parts" (
     "id" UUID NOT NULL,
     "companyId" UUID NOT NULL,
     "name" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "description" TEXT,
+    "categoryId" UUID NOT NULL,
     "locationId" UUID NOT NULL,
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "unit" TEXT NOT NULL DEFAULT 'pcs',
@@ -155,7 +152,7 @@ CREATE TABLE "inventories" (
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "photo" TEXT,
 
-    CONSTRAINT "inventories_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "parts_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -167,7 +164,7 @@ CREATE TABLE "workOrders" (
     "status" "WorkOrderStatus" NOT NULL DEFAULT 'pending',
     "priority" "WorkOrderPriority" NOT NULL DEFAULT 'medium',
     "scheduledAt" TIMESTAMP(3),
-    "esimatedDuration" INTEGER,
+    "estimatedDuration" INTEGER,
     "notes" TEXT,
     "assetId" UUID NOT NULL,
     "requestedById" UUID NOT NULL,
@@ -195,8 +192,8 @@ CREATE TABLE "workOrderCosts" (
     "createdById" UUID NOT NULL,
     "type" "WorkOrderCostType" NOT NULL,
     "description" TEXT,
-    "inventoryUsedId" UUID,
-    "inventoryUsedQuantity" INTEGER,
+    "partUsedId" UUID,
+    "partUsedQuantity" INTEGER,
     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -269,7 +266,7 @@ CREATE UNIQUE INDEX "companies_email_key" ON "companies"("email");
 CREATE UNIQUE INDEX "assets_code_companyId_key" ON "assets"("code", "companyId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "inventories_code_companyId_key" ON "inventories"("code", "companyId");
+CREATE UNIQUE INDEX "parts_code_companyId_key" ON "parts"("code", "companyId");
 
 -- AddForeignKey
 ALTER TABLE "companies" ADD CONSTRAINT "companies_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -278,13 +275,13 @@ ALTER TABLE "companies" ADD CONSTRAINT "companies_ownerId_fkey" FOREIGN KEY ("ow
 ALTER TABLE "positions" ADD CONSTRAINT "positions_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "userCompanies" ADD CONSTRAINT "userCompanies_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "employees" ADD CONSTRAINT "employees_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "userCompanies" ADD CONSTRAINT "userCompanies_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "employees" ADD CONSTRAINT "employees_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "userCompanies" ADD CONSTRAINT "userCompanies_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "positions"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "employees" ADD CONSTRAINT "employees_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "positions"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "locations" ADD CONSTRAINT "locations_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -302,19 +299,22 @@ ALTER TABLE "assets" ADD CONSTRAINT "assets_categoryId_fkey" FOREIGN KEY ("categ
 ALTER TABLE "assets" ADD CONSTRAINT "assets_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventoryCategories" ADD CONSTRAINT "inventoryCategories_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "partCategories" ADD CONSTRAINT "partCategories_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventorySuppliers" ADD CONSTRAINT "inventorySuppliers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "partSuppliers" ADD CONSTRAINT "partSuppliers_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventories" ADD CONSTRAINT "inventories_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "parts" ADD CONSTRAINT "parts_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventories" ADD CONSTRAINT "inventories_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "parts" ADD CONSTRAINT "parts_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "partCategories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventories" ADD CONSTRAINT "inventories_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "inventorySuppliers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "parts" ADD CONSTRAINT "parts_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "locations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "parts" ADD CONSTRAINT "parts_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "partSuppliers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "workOrders" ADD CONSTRAINT "workOrders_assetId_fkey" FOREIGN KEY ("assetId") REFERENCES "assets"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -335,7 +335,7 @@ ALTER TABLE "workOrderCosts" ADD CONSTRAINT "workOrderCosts_workOrderId_fkey" FO
 ALTER TABLE "workOrderCosts" ADD CONSTRAINT "workOrderCosts_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "workOrderCosts" ADD CONSTRAINT "workOrderCosts_inventoryUsedId_fkey" FOREIGN KEY ("inventoryUsedId") REFERENCES "inventories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "workOrderCosts" ADD CONSTRAINT "workOrderCosts_partUsedId_fkey" FOREIGN KEY ("partUsedId") REFERENCES "parts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "workOrderTimelines" ADD CONSTRAINT "workOrderTimelines_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

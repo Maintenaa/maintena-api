@@ -25,13 +25,6 @@ enum AssetStatus {
   decommissioned
 }
 
-enum AssetPriority {
-  low
-  medium
-  high
-  critical
-}
-
 enum WorkOrderType {
   predictive
   preventive
@@ -178,7 +171,6 @@ model Asset {
   locationId             String                  @db.Uuid
   location               Location                @relation(fields: [locationId], references: [id], onDelete: Cascade)
   status                 AssetStatus             @default(operational)
-  priority               AssetPriority           @default(medium)
   lastMaintenanceAt      DateTime?
   installationDate       DateTime?
   expirationDate         DateTime?
@@ -251,7 +243,7 @@ model WorkOrder {
   status             WorkOrderStatus     @default(pending)
   priority           WorkOrderPriority   @default(medium)
   scheduledAt        DateTime?
-  esimatedDuration   Int? // in hours
+  estimatedDuration  Int? // in hours
   notes              String?             @db.Text
   assetId            String              @db.Uuid
   asset              Asset               @relation(fields: [assetId], references: [id], onDelete: Cascade)

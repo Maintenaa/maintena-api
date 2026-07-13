@@ -15,14 +15,6 @@ export const createAssetRequestSchema = t.Object({
       t.Literal("decommissioned"),
     ]),
   ),
-  priority: t.Optional(
-    t.Union([
-      t.Literal("low"),
-      t.Literal("medium"),
-      t.Literal("high"),
-      t.Literal("critical"),
-    ]),
-  ),
   lastMaintenanceAt: t.MaybeEmpty(t.String()),
   installationDate: t.MaybeEmpty(t.String()),
   expirationDate: t.MaybeEmpty(t.String()),
