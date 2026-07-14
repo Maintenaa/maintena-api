@@ -1,3 +1,5 @@
+import { assetCategoryResponseSchema } from "@/modules/asset-category/schema/asset-category-schema";
+import { locationResponseSchema } from "@/modules/location/schema/location-schema";
 import { Static, t } from "elysia";
 
 const assetStatusEnum = t.Union([
@@ -15,7 +17,9 @@ export const assetResponseSchema = t.Object({
   description: t.Optional(t.MaybeEmpty(t.String())),
   companyId: t.String(),
   categoryId: t.String(),
+  category: t.Nullable(t.MaybeEmpty(assetCategoryResponseSchema)),
   locationId: t.String(),
+  location: t.Nullable(t.MaybeEmpty(locationResponseSchema)),
   status: assetStatusEnum,
   lastMaintenanceAt: t.Optional(t.MaybeEmpty(t.String())),
   installationDate: t.Optional(t.MaybeEmpty(t.String())),
