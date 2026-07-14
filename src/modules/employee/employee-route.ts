@@ -1,23 +1,14 @@
 import { createEmployeeRequestSchema } from "./schema/create-employee-schema";
 import { updateEmployeeRequestSchema } from "./schema/update-employee-schema";
-import { employeeResponseSchema } from "./schema/employee-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { employeeRepository } from "./employee-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function employeeRoute() {
   return new Elysia({ detail: { tags: ["Employees"] } })
     .use(
       companyGuard()
-        .model(
-          "EmployeeResponse",
-          createApiResponseSchema(employeeResponseSchema),
-        )
-        .model(
-          "EmployeeListResponse",
-          createApiResponseSchema(t.Array(employeeResponseSchema)),
-        )
 
         .get(
           "/employees",
@@ -28,9 +19,6 @@ export function employeeRoute() {
           {
             detail: {
               summary: "List employees",
-            },
-            response: {
-              200: "EmployeeListResponse",
             },
           },
         )
@@ -53,9 +41,6 @@ export function employeeRoute() {
             detail: {
               summary: "Get employee detail",
             },
-            response: {
-              200: "EmployeeResponse",
-            },
           },
         ),
     )
@@ -63,10 +48,6 @@ export function employeeRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateEmployeeRequest", createEmployeeRequestSchema)
         .model("UpdateEmployeeRequest", updateEmployeeRequestSchema)
-        .model(
-          "EmployeeResponse",
-          createApiResponseSchema(employeeResponseSchema),
-        )
 
         .post(
           "/employees",
@@ -79,9 +60,6 @@ export function employeeRoute() {
               summary: "Create employee",
             },
             body: "CreateEmployeeRequest",
-            response: {
-              200: "EmployeeResponse",
-            },
           },
         )
 
@@ -100,9 +78,6 @@ export function employeeRoute() {
               summary: "Update employee",
             },
             body: "UpdateEmployeeRequest",
-            response: {
-              200: "EmployeeResponse",
-            },
           },
         )
 

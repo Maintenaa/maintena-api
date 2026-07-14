@@ -1,23 +1,14 @@
 import { createAssetCategoryRequestSchema } from "./schema/create-asset-category-schema";
 import { updateAssetCategoryRequestSchema } from "./schema/update-asset-category-schema";
-import { assetCategoryResponseSchema } from "./schema/asset-category-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { assetCategoryRepository } from "./asset-category-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function assetCategoryRoute() {
   return new Elysia({ detail: { tags: ["Asset Categories"] } })
     .use(
       companyGuard()
-        .model(
-          "AssetCategoryResponse",
-          createApiResponseSchema(assetCategoryResponseSchema),
-        )
-        .model(
-          "AssetCategoryListResponse",
-          createApiResponseSchema(t.Array(assetCategoryResponseSchema)),
-        )
 
         .get(
           "/asset-categories",
@@ -30,9 +21,6 @@ export function assetCategoryRoute() {
           {
             detail: {
               summary: "List asset categories",
-            },
-            response: {
-              200: "AssetCategoryListResponse",
             },
           },
         )
@@ -55,9 +43,6 @@ export function assetCategoryRoute() {
             detail: {
               summary: "Get asset category detail",
             },
-            response: {
-              200: "AssetCategoryResponse",
-            },
           },
         ),
     )
@@ -65,10 +50,6 @@ export function assetCategoryRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateAssetCategoryRequest", createAssetCategoryRequestSchema)
         .model("UpdateAssetCategoryRequest", updateAssetCategoryRequestSchema)
-        .model(
-          "AssetCategoryResponse",
-          createApiResponseSchema(assetCategoryResponseSchema),
-        )
 
         .post(
           "/asset-categories",
@@ -84,9 +65,6 @@ export function assetCategoryRoute() {
               summary: "Create asset category",
             },
             body: "CreateAssetCategoryRequest",
-            response: {
-              200: "AssetCategoryResponse",
-            },
           },
         )
 
@@ -105,9 +83,6 @@ export function assetCategoryRoute() {
               summary: "Update asset category",
             },
             body: "UpdateAssetCategoryRequest",
-            response: {
-              200: "AssetCategoryResponse",
-            },
           },
         )
 

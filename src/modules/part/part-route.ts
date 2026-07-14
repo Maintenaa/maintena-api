@@ -1,10 +1,9 @@
 import { createPartRequestSchema } from "./schema/create-part-schema";
 import { updatePartRequestSchema } from "./schema/update-part-schema";
-import { partResponseSchema } from "./schema/part-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { partRepository } from "./part-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function partRoute() {
   return new Elysia({
@@ -12,11 +11,6 @@ export function partRoute() {
   })
     .use(
       companyGuard()
-        .model("PartResponse", createApiResponseSchema(partResponseSchema))
-        .model(
-          "PartListResponse",
-          createApiResponseSchema(t.Array(partResponseSchema)),
-        )
 
         .get(
           "/parts",
@@ -27,9 +21,6 @@ export function partRoute() {
           {
             detail: {
               summary: "List parts",
-            },
-            response: {
-              200: "PartListResponse",
             },
           },
         )
@@ -52,9 +43,6 @@ export function partRoute() {
             detail: {
               summary: "Get part detail",
             },
-            response: {
-              200: "PartResponse",
-            },
           },
         ),
     )
@@ -62,7 +50,6 @@ export function partRoute() {
       companyGuard(["owner", "admin"])
         .model("CreatePartRequest", createPartRequestSchema)
         .model("UpdatePartRequest", updatePartRequestSchema)
-        .model("PartResponse", createApiResponseSchema(partResponseSchema))
 
         .post(
           "/parts",
@@ -75,9 +62,6 @@ export function partRoute() {
               summary: "Create part",
             },
             body: "CreatePartRequest",
-            response: {
-              200: "PartResponse",
-            },
           },
         )
 
@@ -96,9 +80,6 @@ export function partRoute() {
               summary: "Update part",
             },
             body: "UpdatePartRequest",
-            response: {
-              200: "PartResponse",
-            },
           },
         )
 

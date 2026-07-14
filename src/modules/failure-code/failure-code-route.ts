@@ -1,23 +1,14 @@
 import { createFailureCodeRequestSchema } from "./schema/create-failure-code-schema";
 import { updateFailureCodeRequestSchema } from "./schema/update-failure-code-schema";
-import { failureCodeResponseSchema } from "./schema/failure-code-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { failureCodeRepository } from "./failure-code-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function failureCodeRoute() {
   return new Elysia({ detail: { tags: ["Failure Codes"] } })
     .use(
       companyGuard()
-        .model(
-          "FailureCodeResponse",
-          createApiResponseSchema(failureCodeResponseSchema),
-        )
-        .model(
-          "FailureCodeListResponse",
-          createApiResponseSchema(t.Array(failureCodeResponseSchema)),
-        )
 
         .get(
           "/failure-codes",
@@ -30,9 +21,6 @@ export function failureCodeRoute() {
           {
             detail: {
               summary: "List failure codes",
-            },
-            response: {
-              200: "FailureCodeListResponse",
             },
           },
         )
@@ -55,9 +43,6 @@ export function failureCodeRoute() {
             detail: {
               summary: "Get failure code detail",
             },
-            response: {
-              200: "FailureCodeResponse",
-            },
           },
         ),
     )
@@ -65,10 +50,6 @@ export function failureCodeRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateFailureCodeRequest", createFailureCodeRequestSchema)
         .model("UpdateFailureCodeRequest", updateFailureCodeRequestSchema)
-        .model(
-          "FailureCodeResponse",
-          createApiResponseSchema(failureCodeResponseSchema),
-        )
 
         .post(
           "/failure-codes",
@@ -84,9 +65,6 @@ export function failureCodeRoute() {
               summary: "Create failure code",
             },
             body: "CreateFailureCodeRequest",
-            response: {
-              200: "FailureCodeResponse",
-            },
           },
         )
 
@@ -105,9 +83,6 @@ export function failureCodeRoute() {
               summary: "Update failure code",
             },
             body: "UpdateFailureCodeRequest",
-            response: {
-              200: "FailureCodeResponse",
-            },
           },
         )
 

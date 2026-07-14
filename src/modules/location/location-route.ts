@@ -1,10 +1,9 @@
 import { createLocationRequestSchema } from "./schema/create-location-schema";
 import { updateLocationRequestSchema } from "./schema/update-location-schema";
-import { locationResponseSchema } from "./schema/location-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { locationRepository } from "./location-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function locationRoute() {
   return new Elysia({
@@ -12,14 +11,6 @@ export function locationRoute() {
   })
     .use(
       companyGuard()
-        .model(
-          "LocationResponse",
-          createApiResponseSchema(locationResponseSchema),
-        )
-        .model(
-          "LocationListResponse",
-          createApiResponseSchema(t.Array(locationResponseSchema)),
-        )
 
         .get(
           "locations",
@@ -30,9 +21,6 @@ export function locationRoute() {
           {
             detail: {
               summary: "List locations",
-            },
-            response: {
-              200: "LocationListResponse",
             },
           },
         )
@@ -55,9 +43,6 @@ export function locationRoute() {
             detail: {
               summary: "Get location detail",
             },
-            response: {
-              200: "LocationResponse",
-            },
           },
         ),
     )
@@ -65,10 +50,6 @@ export function locationRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateLocationRequest", createLocationRequestSchema)
         .model("UpdateLocationRequest", updateLocationRequestSchema)
-        .model(
-          "LocationResponse",
-          createApiResponseSchema(locationResponseSchema),
-        )
 
         .post(
           "/locations",
@@ -81,9 +62,6 @@ export function locationRoute() {
               summary: "Create location",
             },
             body: "CreateLocationRequest",
-            response: {
-              200: "LocationResponse",
-            },
           },
         )
 
@@ -102,9 +80,6 @@ export function locationRoute() {
               summary: "Update location",
             },
             body: "UpdateLocationRequest",
-            response: {
-              200: "LocationResponse",
-            },
           },
         )
 

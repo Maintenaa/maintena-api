@@ -1,6 +1,4 @@
 import {
-  workOrderResponseSchema,
-  workOrderListResponseSchema,
   workOrderTimelineSchema,
   workOrderCostSchema,
 } from "./schema/work-order-schema";
@@ -12,25 +10,17 @@ import { createWorkOrderTimelineSchema } from "./schema/create-work-order-timeli
 import { updateWorkOrderTimelineSchema } from "./schema/update-work-order-timeline-schema";
 import { createWorkOrderCostSchema } from "./schema/create-work-order-cost-schema";
 import { updateWorkOrderCostSchema } from "./schema/update-work-order-cost-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { workOrderRepository } from "./work-order-module";
 import { companyGuard } from "../company/guard/company-guard";
 import { assertWorkOrderPermission } from "./guard/work-order-permission";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function workOrderRoute() {
   return new Elysia({ detail: { tags: ["Work Orders"] } })
     // ─── Work Order Endpoints ──────────────────────────────────
     .use(
       companyGuard()
-        .model(
-          "WorkOrderResponse",
-          createApiResponseSchema(workOrderResponseSchema),
-        )
-        .model(
-          "WorkOrderListResponse",
-          createApiResponseSchema(t.Array(workOrderListResponseSchema)),
-        )
 
         .get(
           "/work-order",
@@ -40,7 +30,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "List all work orders" },
-            response: { 200: "WorkOrderListResponse" },
           },
         )
 
@@ -55,7 +44,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "List my requested work orders" },
-            response: { 200: "WorkOrderListResponse" },
           },
         )
 
@@ -70,7 +58,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "List my assigned work orders" },
-            response: { 200: "WorkOrderListResponse" },
           },
         )
 
@@ -88,7 +75,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "Get work order detail" },
-            response: { 200: "WorkOrderResponse" },
           },
         )
 
@@ -105,7 +91,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Request a work order" },
             body: "RequestWorkOrder",
-            response: { 200: "WorkOrderResponse" },
           },
         ),
     )
@@ -114,10 +99,6 @@ export function workOrderRoute() {
     .use(
       companyGuard(["owner", "admin"])
         .model("AssignWorkOrder", assignWorkOrderSchema)
-        .model(
-          "WorkOrderResponse",
-          createApiResponseSchema(workOrderResponseSchema),
-        )
 
         .post(
           "/work-order/assign",
@@ -131,7 +112,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Assign and schedule work order" },
             body: "AssignWorkOrder",
-            response: { 200: "WorkOrderResponse" },
           },
         ),
     )
@@ -142,10 +122,6 @@ export function workOrderRoute() {
         .model("RequestWorkOrder", requestWorkOrderSchema)
         .model("UpdateWorkOrder", updateWorkOrderSchema)
         .model("UpdateWorkOrderStatus", updateWorkOrderStatusSchema)
-        .model(
-          "WorkOrderResponse",
-          createApiResponseSchema(workOrderResponseSchema),
-        )
 
         .put(
           "/work-order/:workOrderId",
@@ -166,7 +142,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Update work order (requester or admin)" },
             body: "UpdateWorkOrder",
-            response: { 200: "WorkOrderResponse" },
           },
         )
 
@@ -191,7 +166,6 @@ export function workOrderRoute() {
               summary: "Update work order status (requester, admin, or assigner)",
             },
             body: "UpdateWorkOrderStatus",
-            response: { 200: "WorkOrderResponse" },
           },
         )
 
@@ -217,10 +191,6 @@ export function workOrderRoute() {
     .use(
       companyGuard()
         .model("WorkOrderTimeline", workOrderTimelineSchema)
-        .model(
-          "WorkOrderTimelineListResponse",
-          createApiResponseSchema(t.Array(workOrderTimelineSchema)),
-        )
         .model("CreateWorkOrderTimeline", createWorkOrderTimelineSchema)
         .model("UpdateWorkOrderTimeline", updateWorkOrderTimelineSchema)
 
@@ -235,7 +205,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "List work order timelines" },
-            response: { 200: "WorkOrderTimelineListResponse" },
           },
         )
 
@@ -259,7 +228,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Create timeline (assigner only)" },
             body: "CreateWorkOrderTimeline",
-            response: { 200: "WorkOrderTimeline" },
           },
         )
 
@@ -283,7 +251,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Update timeline (assigner only)" },
             body: "UpdateWorkOrderTimeline",
-            response: { 200: "WorkOrderTimeline" },
           },
         )
 
@@ -313,10 +280,6 @@ export function workOrderRoute() {
     .use(
       companyGuard()
         .model("WorkOrderCost", workOrderCostSchema)
-        .model(
-          "WorkOrderCostListResponse",
-          createApiResponseSchema(t.Array(workOrderCostSchema)),
-        )
         .model("CreateWorkOrderCost", createWorkOrderCostSchema)
         .model("UpdateWorkOrderCost", updateWorkOrderCostSchema)
 
@@ -331,7 +294,6 @@ export function workOrderRoute() {
           },
           {
             detail: { summary: "List work order costs" },
-            response: { 200: "WorkOrderCostListResponse" },
           },
         )
 
@@ -355,7 +317,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Add cost (assigner only)" },
             body: "CreateWorkOrderCost",
-            response: { 200: "WorkOrderCost" },
           },
         )
 
@@ -379,7 +340,6 @@ export function workOrderRoute() {
           {
             detail: { summary: "Update cost (assigner only)" },
             body: "UpdateWorkOrderCost",
-            response: { 200: "WorkOrderCost" },
           },
         )
 

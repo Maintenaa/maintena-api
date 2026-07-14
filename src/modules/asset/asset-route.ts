@@ -1,20 +1,14 @@
 import { createAssetRequestSchema } from "./schema/create-asset-schema";
 import { updateAssetRequestSchema } from "./schema/update-asset-schema";
-import { assetResponseSchema } from "./schema/asset-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { assetRepository } from "./asset-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function assetRoute() {
   return new Elysia({ detail: { tags: ["Assets"] } })
     .use(
       companyGuard()
-        .model("AssetResponse", createApiResponseSchema(assetResponseSchema))
-        .model(
-          "AssetListResponse",
-          createApiResponseSchema(t.Array(assetResponseSchema)),
-        )
 
         .get(
           "/assets",
@@ -25,9 +19,6 @@ export function assetRoute() {
           {
             detail: {
               summary: "List assets",
-            },
-            response: {
-              200: "AssetListResponse",
             },
           },
         )
@@ -50,9 +41,6 @@ export function assetRoute() {
             detail: {
               summary: "Get asset detail",
             },
-            response: {
-              200: "AssetResponse",
-            },
           },
         ),
     )
@@ -60,7 +48,6 @@ export function assetRoute() {
       companyGuard(["owner", "admin"])
         .model("CreateAssetRequest", createAssetRequestSchema)
         .model("UpdateAssetRequest", updateAssetRequestSchema)
-        .model("AssetResponse", createApiResponseSchema(assetResponseSchema))
 
         .post(
           "/assets",
@@ -73,9 +60,6 @@ export function assetRoute() {
               summary: "Create asset",
             },
             body: "CreateAssetRequest",
-            response: {
-              200: "AssetResponse",
-            },
           },
         )
 
@@ -94,9 +78,6 @@ export function assetRoute() {
               summary: "Update asset",
             },
             body: "UpdateAssetRequest",
-            response: {
-              200: "AssetResponse",
-            },
           },
         )
 

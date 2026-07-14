@@ -1,16 +1,12 @@
 import { loginRequestSchema } from "./schema/login-schema";
 import { registerRequestSchema } from "./schema/register-schema";
 import { isDevelopment } from "@/core/config";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { authRepository } from "./auth-module";
 import Elysia, { Cookie } from "elysia";
-import {
-  authResponseSchema,
-  refreshTokenRequestSchema,
-} from "./schema/auth-schema";
+import { refreshTokenRequestSchema } from "./schema/auth-schema";
 import { REFRESH_TOKEN_COOKIE_KEY } from "./auth-constant";
 import { authGuard } from "./guard/auth-guard";
-import { userResponseSchema } from "../user/schema/user-schema";
 
 export function authRoute() {
   function setRefreshTokenCookie(
@@ -32,7 +28,6 @@ export function authRoute() {
   return new Elysia({ detail: { tags: ["Auth"] } })
     .model("LoginRequest", loginRequestSchema)
     .model("RegisterRequest", registerRequestSchema)
-    .model("AuthResponse", createApiResponseSchema(authResponseSchema))
 
     .post(
       "/register",
@@ -47,9 +42,6 @@ export function authRoute() {
           summary: "Register",
         },
         body: "RegisterRequest",
-        response: {
-          200: "AuthResponse",
-        },
       },
     )
 
@@ -66,9 +58,6 @@ export function authRoute() {
           summary: "Login",
         },
         body: "LoginRequest",
-        response: {
-          200: "AuthResponse",
-        },
       },
     )
 
@@ -83,9 +72,6 @@ export function authRoute() {
       },
       {
         cookie: refreshTokenRequestSchema,
-        response: {
-          200: "AuthResponse",
-        },
         detail: {
           summary: "Refresh Token",
         },
@@ -94,7 +80,6 @@ export function authRoute() {
 
     .use(
       authGuard()
-        .model("ProfileResponse", createApiResponseSchema(userResponseSchema))
 
         .get(
           "/profile",
@@ -104,9 +89,6 @@ export function authRoute() {
           {
             detail: {
               summary: "Get Profile",
-            },
-            response: {
-              200: "ProfileResponse",
             },
           },
         ),

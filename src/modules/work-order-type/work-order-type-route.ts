@@ -1,24 +1,14 @@
 import { createWorkOrderTypeRequestSchema } from "./schema/create-work-order-type-schema";
 import { updateWorkOrderTypeRequestSchema } from "./schema/update-work-order-type-schema";
-import { workOrderTypeResponseSchema } from "./schema/work-order-type-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { workOrderTypeRepository } from "./work-order-type-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function workOrderTypeRoute() {
   return new Elysia({ detail: { tags: ["Work Order Types"] } })
     .use(
       companyGuard()
-        .model(
-          "WorkOrderTypeResponse",
-          createApiResponseSchema(workOrderTypeResponseSchema),
-        )
-        .model(
-          "WorkOrderTypeListResponse",
-          createApiResponseSchema(t.Array(workOrderTypeResponseSchema)),
-        )
-
         .get(
           "/work-order-types",
           async ({ company }) => {
@@ -30,9 +20,6 @@ export function workOrderTypeRoute() {
           {
             detail: {
               summary: "List work order types",
-            },
-            response: {
-              200: "WorkOrderTypeListResponse",
             },
           },
         )
@@ -55,9 +42,6 @@ export function workOrderTypeRoute() {
             detail: {
               summary: "Get work order type detail",
             },
-            response: {
-              200: "WorkOrderTypeResponse",
-            },
           },
         ),
     )
@@ -70,10 +54,6 @@ export function workOrderTypeRoute() {
         .model(
           "UpdateWorkOrderTypeRequest",
           updateWorkOrderTypeRequestSchema,
-        )
-        .model(
-          "WorkOrderTypeResponse",
-          createApiResponseSchema(workOrderTypeResponseSchema),
         )
 
         .post(
@@ -90,9 +70,6 @@ export function workOrderTypeRoute() {
               summary: "Create work order type",
             },
             body: "CreateWorkOrderTypeRequest",
-            response: {
-              200: "WorkOrderTypeResponse",
-            },
           },
         )
 
@@ -111,9 +88,6 @@ export function workOrderTypeRoute() {
               summary: "Update work order type",
             },
             body: "UpdateWorkOrderTypeRequest",
-            response: {
-              200: "WorkOrderTypeResponse",
-            },
           },
         )
 

@@ -1,23 +1,14 @@
 import { createPartCategoryRequestSchema } from "./schema/create-part-category-schema";
 import { updatePartCategoryRequestSchema } from "./schema/update-part-category-schema";
-import { partCategoryResponseSchema } from "./schema/part-category-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { partCategoryRepository } from "./part-category-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function partCategoryRoute() {
   return new Elysia({ detail: { tags: ["Part Categories"] } })
     .use(
       companyGuard()
-        .model(
-          "PartCategoryResponse",
-          createApiResponseSchema(partCategoryResponseSchema),
-        )
-        .model(
-          "PartCategoryListResponse",
-          createApiResponseSchema(t.Array(partCategoryResponseSchema)),
-        )
 
         .get(
           "/part-categories",
@@ -28,9 +19,6 @@ export function partCategoryRoute() {
           {
             detail: {
               summary: "List part categories",
-            },
-            response: {
-              200: "PartCategoryListResponse",
             },
           },
         )
@@ -53,9 +41,6 @@ export function partCategoryRoute() {
             detail: {
               summary: "Get part category detail",
             },
-            response: {
-              200: "PartCategoryResponse",
-            },
           },
         ),
     )
@@ -63,10 +48,6 @@ export function partCategoryRoute() {
       companyGuard(["owner", "admin"])
         .model("CreatePartCategoryRequest", createPartCategoryRequestSchema)
         .model("UpdatePartCategoryRequest", updatePartCategoryRequestSchema)
-        .model(
-          "PartCategoryResponse",
-          createApiResponseSchema(partCategoryResponseSchema),
-        )
 
         .post(
           "/part-categories",
@@ -82,9 +63,6 @@ export function partCategoryRoute() {
               summary: "Create part category",
             },
             body: "CreatePartCategoryRequest",
-            response: {
-              200: "PartCategoryResponse",
-            },
           },
         )
 
@@ -103,9 +81,6 @@ export function partCategoryRoute() {
               summary: "Update part category",
             },
             body: "UpdatePartCategoryRequest",
-            response: {
-              200: "PartCategoryResponse",
-            },
           },
         )
 

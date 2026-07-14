@@ -1,24 +1,14 @@
 import { createPartSupplierRequestSchema } from "./schema/create-part-supplier-schema";
 import { updatePartSupplierRequestSchema } from "./schema/update-part-supplier-schema";
-import { partSupplierResponseSchema } from "./schema/part-supplier-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { partSupplierRepository } from "./part-supplier-module";
 import { companyGuard } from "../company/guard/company-guard";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function partSupplierRoute() {
   return new Elysia({ detail: { tags: ["Part Suppliers"] } })
     .use(
       companyGuard()
-        .model(
-          "PartSupplierResponse",
-          createApiResponseSchema(partSupplierResponseSchema),
-        )
-        .model(
-          "PartSupplierListResponse",
-          createApiResponseSchema(t.Array(partSupplierResponseSchema)),
-        )
-
         .get(
           "/part-suppliers",
           async ({ company }) => {
@@ -28,9 +18,6 @@ export function partSupplierRoute() {
           {
             detail: {
               summary: "List part suppliers",
-            },
-            response: {
-              200: "PartSupplierListResponse",
             },
           },
         )
@@ -53,9 +40,6 @@ export function partSupplierRoute() {
             detail: {
               summary: "Get part supplier detail",
             },
-            response: {
-              200: "PartSupplierResponse",
-            },
           },
         ),
     )
@@ -63,10 +47,6 @@ export function partSupplierRoute() {
       companyGuard(["owner", "admin"])
         .model("CreatePartSupplierRequest", createPartSupplierRequestSchema)
         .model("UpdatePartSupplierRequest", updatePartSupplierRequestSchema)
-        .model(
-          "PartSupplierResponse",
-          createApiResponseSchema(partSupplierResponseSchema),
-        )
 
         .post(
           "/part-suppliers",
@@ -82,9 +62,6 @@ export function partSupplierRoute() {
               summary: "Create part supplier",
             },
             body: "CreatePartSupplierRequest",
-            response: {
-              200: "PartSupplierResponse",
-            },
           },
         )
 
@@ -103,9 +80,6 @@ export function partSupplierRoute() {
               summary: "Update part supplier",
             },
             body: "UpdatePartSupplierRequest",
-            response: {
-              200: "PartSupplierResponse",
-            },
           },
         )
 

@@ -1,32 +1,20 @@
-import {
-  pmResponseSchema,
-  pmListResponseSchema,
-  pmTimelineSchema,
-} from "./schema/preventive-maintenance-schema";
+import { pmTimelineSchema } from "./schema/preventive-maintenance-schema";
 import { createPmSchema } from "./schema/create-pm-schema";
 import { updatePmSchema } from "./schema/update-pm-schema";
 import { assignPmSchema } from "./schema/assign-pm-schema";
 import { createPmTimelineSchema } from "./schema/create-pm-timeline-schema";
 import { updatePmTimelineSchema } from "./schema/update-pm-timeline-schema";
-import { createApiResponseSchema, ok } from "@/shared/schema/api-schema";
+import { ok } from "@/shared/schema/api-schema";
 import { pmRepository } from "./pm-module";
 import { companyGuard } from "../company/guard/company-guard";
 import { assertPmPermission } from "./guard/pm-permission";
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 
 export function pmRoute() {
   return new Elysia({ detail: { tags: ["Preventive Maintenance"] } })
     // ─── PM Endpoints ─────────────────────────────────────────
     .use(
       companyGuard()
-        .model(
-          "PmResponse",
-          createApiResponseSchema(pmResponseSchema),
-        )
-        .model(
-          "PmListResponse",
-          createApiResponseSchema(t.Array(pmListResponseSchema)),
-        )
 
         .get(
           "/preventive-maintenance",
@@ -36,7 +24,6 @@ export function pmRoute() {
           },
           {
             detail: { summary: "List all preventive maintenance" },
-            response: { 200: "PmListResponse" },
           },
         )
 
@@ -48,7 +35,6 @@ export function pmRoute() {
           },
           {
             detail: { summary: "List my assigned preventive maintenance" },
-            response: { 200: "PmListResponse" },
           },
         )
 
@@ -63,7 +49,6 @@ export function pmRoute() {
           },
           {
             detail: { summary: "Get preventive maintenance detail" },
-            response: { 200: "PmResponse" },
           },
         ),
     )
@@ -74,10 +59,6 @@ export function pmRoute() {
         .model("CreatePm", createPmSchema)
         .model("UpdatePm", updatePmSchema)
         .model("AssignPm", assignPmSchema)
-        .model(
-          "PmResponse",
-          createApiResponseSchema(pmResponseSchema),
-        )
 
         .post(
           "/preventive-maintenance",
@@ -88,7 +69,6 @@ export function pmRoute() {
           {
             detail: { summary: "Create preventive maintenance" },
             body: "CreatePm",
-            response: { 200: "PmResponse" },
           },
         )
 
@@ -101,7 +81,6 @@ export function pmRoute() {
           {
             detail: { summary: "Update preventive maintenance" },
             body: "UpdatePm",
-            response: { 200: "PmResponse" },
           },
         )
 
@@ -125,7 +104,6 @@ export function pmRoute() {
           {
             detail: { summary: "Assign preventive maintenance" },
             body: "AssignPm",
-            response: { 200: "PmResponse" },
           },
         ),
     )
@@ -134,10 +112,6 @@ export function pmRoute() {
     .use(
       companyGuard()
         .model("PmTimeline", pmTimelineSchema)
-        .model(
-          "PmTimelineListResponse",
-          createApiResponseSchema(t.Array(pmTimelineSchema)),
-        )
         .model("CreatePmTimeline", createPmTimelineSchema)
         .model("UpdatePmTimeline", updatePmTimelineSchema)
 
@@ -152,7 +126,6 @@ export function pmRoute() {
           },
           {
             detail: { summary: "List preventive maintenance timelines" },
-            response: { 200: "PmTimelineListResponse" },
           },
         )
 
@@ -173,7 +146,6 @@ export function pmRoute() {
           {
             detail: { summary: "Create timeline (assigner only)" },
             body: "CreatePmTimeline",
-            response: { 200: "PmTimeline" },
           },
         )
 
@@ -194,7 +166,6 @@ export function pmRoute() {
           {
             detail: { summary: "Update timeline (assigner only)" },
             body: "UpdatePmTimeline",
-            response: { 200: "PmTimeline" },
           },
         )
 
