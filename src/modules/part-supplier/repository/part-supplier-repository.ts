@@ -37,6 +37,9 @@ export class PartSupplierRepository {
       data: {
         companyId,
         name: data.name,
+        phone: data.phone,
+        email: data.email,
+        address: data.address,
       },
     });
   }
@@ -64,6 +67,9 @@ export class PartSupplierRepository {
       where: { id: supplierId },
       data: {
         ...(data.name && { name: data.name }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.address !== undefined && { address: data.address }),
       },
     });
   }

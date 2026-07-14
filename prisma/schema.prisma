@@ -193,6 +193,9 @@ model PartCategory {
 model PartSupplier {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
+  phone     String?
+  email     String?
+  address   String?  @db.Text
   companyId String   @db.Uuid
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
