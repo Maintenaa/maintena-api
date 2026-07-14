@@ -7,7 +7,7 @@ export const updateAssetRequestSchema = t.Object({
   name: t.MaybeEmpty(
     t.String({ minLength: 1, error: "Asset name is required" }),
   ),
-  description: t.MaybeEmpty(t.String()),
+  description: t.Optional(t.MaybeEmpty(t.String())),
   categoryId: t.MaybeEmpty(
     t.String({ format: "uuid", error: "Category ID is required" }),
   ),
@@ -23,13 +23,13 @@ export const updateAssetRequestSchema = t.Object({
       t.Literal("decommissioned"),
     ]),
   ),
-  lastMaintenanceAt: t.MaybeEmpty(t.String()),
-  installationDate: t.MaybeEmpty(t.String()),
-  expirationDate: t.MaybeEmpty(t.String()),
-  manufacturer: t.MaybeEmpty(t.String()),
-  model: t.MaybeEmpty(t.String()),
-  specifications: t.MaybeEmpty(t.Array(t.Any())),
-  photo: t.MaybeEmpty(t.String()),
+  lastMaintenanceAt: t.Optional(t.MaybeEmpty(t.String())),
+  installationDate: t.Optional(t.MaybeEmpty(t.String())),
+  expirationDate: t.Optional(t.MaybeEmpty(t.String())),
+  manufacturer: t.Optional(t.MaybeEmpty(t.String())),
+  model: t.Optional(t.MaybeEmpty(t.String())),
+  specifications: t.Optional(t.MaybeEmpty(t.Array(t.Any()))),
+  photo: t.Optional(t.MaybeEmpty(t.String())),
 });
 
 export type UpdateAssetRequest = Static<typeof updateAssetRequestSchema>;

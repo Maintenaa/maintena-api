@@ -5,12 +5,12 @@ export const userResponseSchema = t.Object({
   id: t.String({ format: "uuid" }),
   email: t.String({ format: "email" }),
   name: t.String(),
-  emailVerifiedAt: t.MaybeEmpty(t.Date()),
+  emailVerifiedAt: t.Optional(t.MaybeEmpty(t.Date())),
   role: t.Enum(UserRole),
-  bannedUntil: t.MaybeEmpty(t.Date()),
+  bannedUntil: t.Optional(t.MaybeEmpty(t.Date())),
   createdAt: t.Date(),
   updatedAt: t.Date(),
-  deletedAt: t.MaybeEmpty(t.Date()),
+  deletedAt: t.Optional(t.MaybeEmpty(t.Date())),
 });
 
 export type UserResponse = Static<typeof userResponseSchema>;
